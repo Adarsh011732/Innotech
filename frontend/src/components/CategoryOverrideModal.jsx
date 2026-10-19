@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { formatMoney } from '../utils/currency';
+import CustomDropdown from './CustomDropdown';
 
 export default function CategoryOverrideModal({ tx, onClose, onSave, activeCurrency = 'INR' }) {
   const [newCategory, setNewCategory] = useState(tx?.category || 'Dining & Takeout');
@@ -26,24 +27,28 @@ export default function CategoryOverrideModal({ tx, onClose, onSave, activeCurre
         </div>
 
         <div className="space-y-1.5 mb-4">
-          <label className="text-xs text-zinc-600 font-semibold">Assigned Category:</label>
-          <select 
-            value={newCategory} 
-            onChange={(e) => setNewCategory(e.target.value)}
-            className="w-full bg-[#FAFBFD] border border-zinc-200 text-zinc-900 text-xs rounded-2xl p-3 outline-none focus:border-zinc-900 transition-colors font-medium cursor-pointer"
-          >
-            <option value="Dining & Takeout">Dining & Takeout</option>
-            <option value="Groceries">Groceries</option>
-            <option value="Housing & Rent">Housing & Rent</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Subscriptions">Subscriptions</option>
-            <option value="Transportation">Transportation</option>
-            <option value="Debt & Loans">Debt & Loans</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Shopping & Lifestyle">Shopping & Lifestyle</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Income & Salary">Income & Salary</option>
-          </select>
+          <label className="text-xs text-zinc-600 font-semibold block">Assigned Category:</label>
+          <CustomDropdown 
+            options={[
+              { id: 'Dining & Takeout', label: 'Dining & Takeout', icon: '☕' },
+              { id: 'Groceries', label: 'Groceries', icon: '🛍️' },
+              { id: 'Housing & Rent', label: 'Housing & Rent', icon: '🏠' },
+              { id: 'Utilities', label: 'Utilities', icon: '💡' },
+              { id: 'Subscriptions', label: 'Subscriptions', icon: '📺' },
+              { id: 'Transportation', label: 'Transportation', icon: '🚗' },
+              { id: 'Debt & Loans', label: 'Debt & Loans', icon: '💳' },
+              { id: 'Healthcare', label: 'Healthcare', icon: '🏥' },
+              { id: 'Shopping & Lifestyle', label: 'Shopping & Lifestyle', icon: '👗' },
+              { id: 'Entertainment', label: 'Entertainment', icon: '🎮' },
+              { id: 'Income & Salary', label: 'Income & Salary', icon: '💰' },
+            ]}
+            value={newCategory}
+            onChange={(val) => setNewCategory(val)}
+            className="w-full"
+            buttonClassName="w-full justify-between py-2.5 px-3.5 bg-[#FAFBFD] border-zinc-200 rounded-2xl text-xs"
+            menuClassName="w-full left-0 right-0"
+            align="left"
+          />
         </div>
 
         <label className="flex items-center gap-2.5 text-xs text-zinc-500 mb-6 cursor-pointer select-none">

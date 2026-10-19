@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, Coffee, ShoppingBag, Tv, Gamepad2, Car, Home, DollarSign, Edit3, ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { Search, SlidersHorizontal, Coffee, ShoppingBag, Tv, Gamepad2, Car, Home, DollarSign, Edit3, ArrowDownRight, ArrowUpRight, Filter } from 'lucide-react';
 import { formatMoney } from '../utils/currency';
+import InflowOutflowCard from './InflowOutflowCard';
+import CustomDropdown from './CustomDropdown';
 
 export default function TransactionsView({ transactions = [], onOpenOverrideModal, activeCurrency = 'INR' }) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
+
+  const categoryOptions = [
+    { id: '', label: 'All Categories', icon: '✨' },
+    { id: 'Dining & Takeout', label: 'Dining & Takeout', icon: '☕' },
+    { id: 'Groceries', label: 'Groceries', icon: '🛍️' },
+    { id: 'Subscriptions', label: 'Subscriptions', icon: '📺' },
+    { id: 'Entertainment', label: 'Entertainment', icon: '🎮' },
+    { id: 'Transportation', label: 'Transportation', icon: '🚗' },
+    { id: 'Housing & Rent', label: 'Housing & Rent', icon: '🏠' },
+    { id: 'Income & Salary', label: 'Income & Salary', icon: '💰' },
+  ];
 
   const filtered = transactions.filter(t => {
     const matchText = (t.description || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -54,21 +67,22 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
             />
           </div>
 
-          <select 
-            value={category} 
-            onChange={(e) => setCategory(e.target.value)}
-            className="bg-white border border-black/[0.08] text-xs font-semibold text-zinc-800 rounded-full px-3.5 py-2 outline-none cursor-pointer shadow-sm hover:border-zinc-400 transition-all"
-          >
-            <option value="">All Categories</option>
-            <option value="Dining & Takeout">Dining & Takeout</option>
-            <option value="Groceries">Groceries</option>
-            <option value="Subscriptions">Subscriptions</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Transportation">Transportation</option>
-            <option value="Housing & Rent">Housing & Rent</option>
-          </select>
+          {/* Custom Styled Glass Dropdown replacing dull OS select */}
+          <CustomDropdown 
+            options={categoryOptions}
+            value={category}
+            onChange={(val) => setCategory(val)}
+            placeholder="All Categories"
+            icon={Filter}
+          />
         </div>
       </div>
+
+      {/* Inflow vs Outflow Total Stream & Breakdown Card */}
+      <InflowOutflowCard 
+        transactions={transactions}
+        activeCurrency={activeCurrency}
+      />
 
       {/* Modern White Ledger Card Container from image.png */}
       <div className="bg-white border border-black/[0.06] rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)] card-interactive">

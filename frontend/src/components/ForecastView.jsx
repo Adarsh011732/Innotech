@@ -9,7 +9,10 @@ import {
   ShieldCheck,
   Activity,
   Layers,
-  Sparkles
+  Sparkles,
+  Zap,
+  Eye,
+  SlidersHorizontal
 } from 'lucide-react';
 import CountUp from './reactbits/CountUp';
 import AnimatedContent from './reactbits/AnimatedContent';
@@ -37,21 +40,46 @@ function getSmoothSplinePath(points) {
   return path;
 }
 
-export default function ForecastView({ forecastData, onHorizonChange, currentHorizon = 60, activeCurrency = 'INR' }) {
+// Compact currency formatter for clean Y-axis ticks
+function formatCompactTick(val, currency = 'INR') {
+  if (currency === 'INR') {
+    const inr = val * 83;
+    const absVal = Math.abs(inr);
+    const sign = inr < 0 ? '-' : '';
+    if (absVal >= 10000000) return `${sign}₹${(absVal / 10000000).toFixed(1)} Cr`;
+    if (absVal >= 100000) return `${sign}₹${(absVal / 100000).toFixed(1)} L`;
+    if (absVal >= 1000) return `${sign}₹${(absVal / 1000).toFixed(0)}k`;
+    return `${sign}₹${absVal.toFixed(0)}`;
+  } else {
+    const absVal = Math.abs(val);
+    const sign = val < 0 ? '-' : '';
+    if (absVal >= 1000000) return `${sign}$${(absVal / 1000000).toFixed(1)}M`;
+    if (absVal >= 1000) return `${sign}$${(absVal / 1000).toFixed(0)}k`;
+    return `${sign}$${absVal.toFixed(0)}`;
+  }
+}
+
+export default function ForecastView({ 
+  forecastData, 
+  onHorizonChange, 
+  currentHorizon = 60, 
+  activeCurrency = 'INR' 
+}) {
   const trajectory = forecastData?.trajectory || [];
   const rawBurnRate = forecastData?.historical_burn_rate_daily ?? 150.16;
   const hasShortfall = trajectory.some(p => p.lower_bound_90 <= 0);
 
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [chartTheme, setChartTheme] = useState('light'); // 'light' | 'dark'
   const svgRef = useRef(null);
 
-  // SVG chart dimensions
-  const svgWidth = 860;
+  // SVG dimensions
+  const svgWidth = 880;
   const svgHeight = 290;
-  const paddingLeft = 65;
-  const paddingRight = 35;
-  const paddingTop = 30;
+  const paddingLeft = 70;
+  const paddingRight = 40;
+  const paddingTop = 32;
   const paddingBottom = 45;
 
   let minVal = 0;
@@ -92,7 +120,7 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
   const lowerPointsReversed = [...lowerPoints].reverse();
   let lowerSplineReversed = '';
   if (lowerPointsReversed.length > 0) {
-    lowerSplineReversed = lowerPointsReversed.map((pt, i) => `L ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ');
+    lowerSplineReversed = lowerPointsReversed.map((pt) => `L ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ');
   }
   const bandPolygon = upperSpline ? `${upperSpline} ${lowerSplineReversed} Z` : '';
 
@@ -109,8 +137,7 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
 
   const dateMilestones = [0, 0.25, 0.5, 0.75, 1.0].map(pct => {
     const idx = Math.min(trajectory.length - 1, Math.round((trajectory.length - 1) * pct));
-    const pt = trajectory[idx];
-    const offset = pt?.day_offset ?? Math.round(currentHorizon * pct);
+    const offset = idx;
     return {
       x: getX(idx),
       label: offset === 0 ? 'Today' : `+${offset}d`,
@@ -142,7 +169,14 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
     setHoveredIdx(null);
   };
 
-  const activePoint = hoveredIdx !== null ? trajectory[hoveredIdx] : trajectory[trajectory.length - 1];
+  const activeIdx = hoveredIdx !== null ? hoveredIdx : (trajectory.length - 1);
+  const activePoint = trajectory[activeIdx] || {
+    median_balance: 28520.30,
+    lower_bound_90: 22000,
+    upper_bound_90: 34000,
+    date: new Date().toISOString()
+  };
+
   const endingBalance = trajectory.length > 0 ? trajectory[trajectory.length - 1].median_balance : 28520.30;
   const isEndingPositive = endingBalance >= 0;
 
@@ -164,21 +198,32 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
           </p>
         </div>
         
-        {/* Horizon selector chips */}
-        <div className="flex items-center gap-1.5 bg-white border border-black/[0.06] p-1.5 rounded-full shadow-sm">
-          {[30, 60, 90].map((days) => (
-            <button
-              key={days}
-              onClick={() => onHorizonChange(days)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 btn-interactive ${
-                currentHorizon === days 
-                  ? 'bg-zinc-900 text-white shadow-md' 
-                  : 'text-zinc-500 hover:text-zinc-900'
-              }`}
-            >
-              {days} Days
-            </button>
-          ))}
+        {/* Horizon selector chips - Scaleless to prevent text blurring */}
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle Pill */}
+          <button
+            onClick={() => setChartTheme(chartTheme === 'light' ? 'dark' : 'light')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black/[0.06] text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors btn-interactive"
+            title="Toggle Light / Dark Chart Surface"
+          >
+            <span className="text-xs">{chartTheme === 'light' ? '🌙 Dark Canvas' : '☀️ Light Canvas'}</span>
+          </button>
+
+          <div className="flex items-center gap-1 bg-white border border-black/[0.06] p-1 rounded-full shadow-sm">
+            {[30, 60, 90].map((days) => (
+              <button
+                key={days}
+                onClick={() => onHorizonChange(days)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors duration-150 ${
+                  currentHorizon === days 
+                    ? 'bg-[#18191E] text-white shadow-sm' 
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }`}
+              >
+                {days} Days
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -216,7 +261,7 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
         )}
       </div>
 
-      {/* Main Forecast Visualizer Card with Dark Inner Canvas */}
+      {/* Main Forecast Visualizer Card */}
       <div className="bg-white border border-black/[0.06] rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)] card-interactive">
         
         {/* Metric Header */}
@@ -244,8 +289,8 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
           {/* Interactive Legend */}
           <div className="flex items-center gap-4 text-xs text-zinc-500">
             <div className="flex items-center gap-2">
-              <span className="w-3.5 h-3 rounded-sm bg-teal-500/30 border border-teal-500"></span>
-              <span>Likely Range (90%)</span>
+              <span className="w-3.5 h-3 rounded-sm bg-teal-500/20 border border-teal-500/60"></span>
+              <span>Likely Range (90% CQR)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-4 h-1 rounded-full bg-teal-500"></span>
@@ -254,9 +299,13 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
           </div>
         </div>
 
-        {/* Dynamic Dark Canvas for SVG Chart */}
+        {/* Dynamic Canvas for SVG Chart - Adapts smoothly to light or dark mode */}
         <div 
-          className="relative w-full h-[300px] sm:h-[320px] bg-[#111216] border border-black/[0.1] rounded-2xl p-2 sm:p-4 overflow-hidden cursor-crosshair group shadow-inner"
+          className={`relative w-full h-[320px] sm:h-[350px] rounded-2xl p-2 sm:p-4 overflow-hidden cursor-crosshair group shadow-inner transition-colors duration-300 ${
+            chartTheme === 'dark'
+              ? 'bg-[#111216] border border-black/[0.15]'
+              : 'bg-gradient-to-b from-[#F8FAFC] to-[#F1F5F9] border border-zinc-200/80'
+          }`}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -275,18 +324,23 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                 </feMerge>
               </filter>
 
-              <linearGradient id="corridorGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.32" />
-                <stop offset="100%" stopColor="#00B4D8" stopOpacity="0.04" />
+              <linearGradient id="corridorGradientLight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0D9488" stopOpacity="0.22" />
+                <stop offset="100%" stopColor="#14B8A6" stopOpacity="0.04" />
               </linearGradient>
 
-              <linearGradient id="medianAreaGlow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.0" />
+              <linearGradient id="corridorGradientDark" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.32" />
+                <stop offset="100%" stopColor="#00B4D8" stopOpacity="0.05" />
+              </linearGradient>
+
+              <linearGradient id="medianGlowLight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0F766E" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#0F766E" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
-            {/* Horizontal Dashed Y-Axis Grid Lines & Labels */}
+            {/* Horizontal Dashed Y-Axis Grid Lines & Clean Compact Labels */}
             {yTicks.map((val, idx) => {
               const yPos = getY(val);
               return (
@@ -296,7 +350,7 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                     y1={yPos} 
                     x2={svgWidth - paddingRight} 
                     y2={yPos} 
-                    stroke="#1E202B" 
+                    stroke={chartTheme === 'dark' ? '#1E202B' : '#E2E8F0'} 
                     strokeWidth="1" 
                     strokeDasharray={val === 0 ? "none" : "3 3"} 
                   />
@@ -304,11 +358,12 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                     x={paddingLeft - 8} 
                     y={yPos + 4} 
                     textAnchor="end" 
-                    fill="#6B7280" 
+                    fill={chartTheme === 'dark' ? '#9CA3AF' : '#64748B'} 
                     fontSize="10" 
                     fontFamily="monospace"
+                    fontWeight="600"
                   >
-                    {activeCurrency === 'INR' ? `₹${(val * 83 / 1000).toFixed(0)}k` : `$${(val / 1000).toFixed(0)}k`}
+                    {formatCompactTick(val, activeCurrency)}
                   </text>
                 </g>
               );
@@ -335,7 +390,7 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                   y1={paddingTop} 
                   x2={ms.x} 
                   y2={svgHeight - paddingBottom} 
-                  stroke="#171821" 
+                  stroke={chartTheme === 'dark' ? '#171821' : '#E2E8F0'} 
                   strokeWidth="1" 
                   strokeDasharray="2 4" 
                 />
@@ -343,7 +398,7 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                   x={ms.x} 
                   y={svgHeight - paddingBottom + 16} 
                   textAnchor="middle" 
-                  fill="#6B7280" 
+                  fill={chartTheme === 'dark' ? '#9CA3AF' : '#64748B'} 
                   fontSize="10" 
                   fontWeight="600"
                 >
@@ -356,8 +411,8 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
             {bandPolygon && (
               <path 
                 d={bandPolygon} 
-                fill="url(#corridorGradient)" 
-                stroke="#00E5FF" 
+                fill={chartTheme === 'dark' ? 'url(#corridorGradientDark)' : 'url(#corridorGradientLight)'} 
+                stroke={chartTheme === 'dark' ? '#00E5FF' : '#0D9488'} 
                 strokeWidth="0.8" 
                 strokeOpacity="0.5" 
               />
@@ -367,20 +422,20 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
             {areaUnderMedian && (
               <path 
                 d={areaUnderMedian} 
-                fill="url(#medianAreaGlow)" 
+                fill={chartTheme === 'dark' ? 'url(#medianAreaGlow)' : 'url(#medianGlowLight)'} 
               />
             )}
 
-            {/* Median Spline Path */}
+            {/* Median Spline Path with Gradient Stroke */}
             {medianSpline && (
               <path 
                 d={medianSpline} 
                 fill="none" 
-                stroke="#00E5FF" 
+                stroke={chartTheme === 'dark' ? '#00E5FF' : '#0F766E'} 
                 strokeWidth="3.2" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
-                filter="url(#forecastGlow)"
+                filter={chartTheme === 'dark' ? 'url(#forecastGlow)' : 'none'}
                 className="animate-draw-line"
               />
             )}
@@ -393,25 +448,46 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                   y1={paddingTop} 
                   x2={mousePos.x} 
                   y2={svgHeight - paddingBottom} 
-                  stroke="#00E5FF" 
+                  stroke={chartTheme === 'dark' ? '#00E5FF' : '#0F766E'} 
                   strokeWidth="1.5" 
                   strokeDasharray="4 4" 
                 />
-                <circle cx={mousePos.x} cy={mousePos.y} r="5" fill="#00E5FF" stroke="#FFFFFF" strokeWidth="2.5" />
+                <circle 
+                  cx={mousePos.x} 
+                  cy={mousePos.y} 
+                  r="5" 
+                  fill={chartTheme === 'dark' ? '#00E5FF' : '#0F766E'} 
+                  stroke="#FFFFFF" 
+                  strokeWidth="2.5" 
+                />
               </g>
             )}
           </svg>
 
-          {/* Floating Tooltip */}
+          {/* Floating Tooltip - Fixed "Day (+undefined Days)" Bug */}
           {hoveredIdx !== null && activePoint && (
             <div 
-              className="pointer-events-none absolute top-4 right-4 bg-black/90 border border-teal-500/50 backdrop-blur-md text-white rounded-2xl p-3 shadow-2xl text-xs z-30"
+              className={`pointer-events-none absolute top-4 right-4 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl text-xs z-30 transition-all ${
+                chartTheme === 'dark'
+                  ? 'bg-black/90 border border-teal-500/50 text-white'
+                  : 'bg-white/95 border border-zinc-200 text-zinc-900 shadow-xl'
+              }`}
             >
-              <div className="font-bold text-teal-400 mb-1">
-                Day {activePoint.day_offset} ({activePoint.day_offset === 0 ? 'Today' : `+${activePoint.day_offset} Days`})
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <span className="font-extrabold text-teal-600 font-mono">
+                  {activeIdx === 0 ? 'Today (Day 0)' : `Day +${activeIdx}`}
+                </span>
+                {activePoint.date && (
+                  <span className="text-[10px] text-zinc-400 font-medium">
+                    {new Date(activePoint.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
               </div>
-              <div className="text-[11px] text-zinc-300">
-                Expected: <span className="text-white font-bold font-mono">{formatMoney(activePoint.median_balance, activeCurrency, true)}</span>
+              <div className="text-xs mb-1">
+                Expected: <span className="font-bold font-mono">{formatMoney(activePoint.median_balance, activeCurrency, true)}</span>
+              </div>
+              <div className="text-[10px] text-zinc-400">
+                90% Corridor: [{formatMoney(activePoint.lower_bound_90, activeCurrency, true)} → {formatMoney(activePoint.upper_bound_90, activeCurrency, true)}]
               </div>
             </div>
           )}
@@ -445,8 +521,8 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                 228 Days
               </div>
               <p className="text-[11px] text-emerald-600 mt-1 font-semibold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Exceeds 6-month safety benchmark (180d)
+                <ShieldCheck className="w-3 h-3" />
+                <span>Exceeds 6-month safety benchmark (180d)</span>
               </p>
             </div>
           </div>
@@ -455,14 +531,12 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
             <div>
               <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
                 <span className="font-semibold">Solvency Health Score</span>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                  AAA Rating
-                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">AAA Rating</span>
               </div>
               <div className="text-2xl font-extrabold text-zinc-900 font-mono">
-                96 / 100
+                96 <span className="text-sm font-normal text-zinc-400">/ 100</span>
               </div>
-              <p className="text-[11px] text-emerald-600 mt-1 font-semibold">Top tier resilience & low shock vulnerability</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Top tier resilience & low shock vulnerability</p>
             </div>
           </div>
 

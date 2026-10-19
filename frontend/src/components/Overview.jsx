@@ -91,7 +91,7 @@ export default function Overview({
         <div className="flex items-center gap-2.5">
           <button 
             onClick={() => setActiveTab('forecast')}
-            className="flex items-center gap-2 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-all btn-interactive"
+            className="flex items-center gap-2 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive"
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-600" />
             <span>Invest sign</span>
@@ -99,7 +99,7 @@ export default function Overview({
           
           <button 
             onClick={() => setActiveTab('transactions')}
-            className="flex items-center gap-1.5 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-all btn-interactive"
+            className="flex items-center gap-1.5 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive"
           >
             <Plus className="w-3.5 h-3.5 text-zinc-600" />
             <span>Add</span>
@@ -329,7 +329,7 @@ export default function Overview({
           {/* Black Pill: ★ Ask AI Assistant */}
           <button 
             onClick={() => setShowAiModal(true)}
-            className="w-full bg-[#18191E] hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-full shadow-md flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 btn-interactive mt-4 group"
+            className="w-full bg-[#18191E] hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-full shadow-md flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 btn-interactive mt-4 group"
           >
             <span className="text-amber-400">★</span>
             <span>Ask AI Assistant</span>

@@ -12,6 +12,8 @@ import {
   ShieldAlert
 } from 'lucide-react';
 
+import CustomDropdown from './CustomDropdown';
+
 export default function Header({ 
   activeTab, 
   setActiveTab, 
@@ -94,19 +96,18 @@ export default function Header({
           </span>
         </div>
 
-        {/* Persona Selector Dropdown */}
-        <div className="flex items-center bg-[#15171F] border border-[#232634] hover:border-white/20 rounded-xl px-2.5 py-1.5 text-xs transition-colors">
-          <span className="hidden sm:inline text-[11px] text-[#6B7280] mr-1.5 font-medium">Persona:</span>
-          <select 
-            value={currentPersona}
-            onChange={(e) => onPersonaChange(e.target.value)}
-            className="bg-transparent text-white font-bold outline-none cursor-pointer text-xs"
-          >
-            <option value="salaried" className="bg-[#15171F] text-white">Salaried Tech Exec</option>
-            <option value="freelancer" className="bg-[#15171F] text-white">Volatile Freelancer</option>
-            <option value="student" className="bg-[#15171F] text-white">Student (Tight Runway)</option>
-          </select>
-        </div>
+        {/* Persona Custom Glass Dropdown */}
+        <CustomDropdown 
+          options={[
+            { id: 'salaried', label: 'Salaried Tech Exec', sublabel: 'Bengaluru, BLR', icon: '👨‍💼', badge: 'BLR' },
+            { id: 'freelancer', label: 'Volatile Freelancer', sublabel: 'Mumbai, BOM', icon: '👩‍🎨', badge: 'BOM' },
+            { id: 'student', label: 'Student (Tight Runway)', sublabel: 'New Delhi, DEL', icon: '🎓', badge: 'DEL' },
+          ]}
+          value={currentPersona}
+          onChange={(val) => onPersonaChange(val)}
+          placeholder="Persona"
+          align="right"
+        />
 
         {/* Action Circles (Exact from image.png) */}
         <div className="flex items-center gap-1.5 sm:gap-2">

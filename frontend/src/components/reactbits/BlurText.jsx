@@ -36,11 +36,11 @@ export default function BlurText({
       {items.map((item, idx) => (
         <span
           key={idx}
-          className="inline-block transition-all duration-700 ease-out will-change-[filter,opacity,transform]"
+          className="inline-block transition-all duration-500 ease-out"
           style={{
-            filter: inView ? 'blur(0px)' : `blur(${blur}px)`,
+            filter: inView ? 'none' : `blur(${blur}px)`,
             opacity: inView ? 1 : 0,
-            transform: inView ? 'translateY(0px)' : `translateY(${direction === 'top' ? -distance : distance}px)`,
+            transform: inView ? 'none' : `translateY(${direction === 'top' ? -distance : distance}px)`,
             transitionDelay: `${idx * delay}ms`,
             marginRight: animateBy === 'words' ? '0.3em' : '0'
           }}

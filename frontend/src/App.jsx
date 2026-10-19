@@ -140,6 +140,26 @@ export default function App() {
     showToast(`Strategy "${profileTitle}" activated!`, 'success');
   };
 
+  // Persona Change Handler
+  const [activePersona, setActivePersona] = useState('salaried');
+  const handlePersonaChange = (personaId) => {
+    setActivePersona(personaId);
+    const personaNames = {
+      salaried: 'Rahul Sharma (Salaried Tech Lead, Bengaluru)',
+      freelancer: 'Priya Patel (Independent Designer, Mumbai)',
+      student: 'Aarav Mehta (Student & AI Intern, New Delhi)'
+    };
+    showToast(`Active Persona: ${personaNames[personaId] || personaId}`, 'success');
+  };
+
+  // Region Change Handler (drives currency automatically)
+  const handleRegionChange = (regionCode) => {
+    const reg = REGIONS.find(r => r.code === regionCode) || REGIONS[0];
+    setActiveRegion(regionCode);
+    setActiveCurrency(reg.currency);
+    showToast(`Switched Region to ${reg.name} (${reg.currency} ${reg.symbol})`, 'success');
+  };
+
   // Login handler from LoginPage with Region & Currency
   const handleLogin = (regionCode, currencyCode) => {
     setActiveRegion(regionCode);
@@ -166,68 +186,83 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col w-screen h-screen bg-[#F3F4F7] text-zinc-900 overflow-hidden font-sans">
+    <div className="relative min-h-screen w-full bg-[#E5E8EE] overflow-x-hidden flex items-center justify-center p-2 sm:p-4 lg:p-6 font-sans">
       
-      {/* Top Horizontal Navbar from image.png */}
-      <Navbar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        activeRegion={activeRegion}
-        onLogout={handleLogout}
-      />
+      {/* Ambient Blurred Extra Portion Around Webapp */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-32 -left-32 w-[34rem] h-[34rem] rounded-full bg-teal-300/30 blur-[130px]" />
+        <div className="absolute top-1/3 -right-32 w-[38rem] h-[38rem] rounded-full bg-blue-400/20 blur-[140px]" />
+        <div className="absolute -bottom-32 left-1/4 w-[36rem] h-[36rem] rounded-full bg-indigo-300/25 blur-[130px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/20 backdrop-blur-2xl pointer-events-none" />
+      </div>
 
-      {/* Main Viewport Container */}
-      <main className="flex-1 overflow-hidden flex flex-col">
-        {activeTab === 'dashboard' && (
-          <Overview 
-            accountsSummary={accountsSummary}
-            setActiveTab={setActiveTab}
-            activeRegion={activeRegion}
-          />
-        )}
+      {/* Floating Elevated Canvas / Tablet Container with Margins & Z-Index */}
+      <div className="relative z-20 w-full max-w-[1600px] h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] bg-[#F3F4F7] rounded-[28px] sm:rounded-[36px] border border-white/90 shadow-[0_30px_90px_-15px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden backdrop-blur-xl">
+        
+        {/* Top Horizontal Navbar */}
+        <Navbar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          activeRegion={activeRegion}
+          onRegionChange={handleRegionChange}
+          activePersona={activePersona}
+          onPersonaChange={handlePersonaChange}
+          onLogout={handleLogout}
+        />
 
-        {activeTab === 'forecast' && (
-          <ForecastView 
-            forecastData={forecastData}
-            onHorizonChange={handleHorizonChange}
-            currentHorizon={currentHorizon}
-            activeCurrency={activeCurrency}
-          />
-        )}
+        {/* Main Viewport Container */}
+        <main className="flex-1 overflow-hidden flex flex-col">
+          {activeTab === 'dashboard' && (
+            <Overview 
+              accountsSummary={accountsSummary}
+              setActiveTab={setActiveTab}
+              activeRegion={activeRegion}
+            />
+          )}
 
-        {activeTab === 'transactions' && (
-          <TransactionsView 
-            transactions={transactions}
-            onOpenOverrideModal={(tx) => setSelectedTxForOverride(tx)}
-            activeCurrency={activeCurrency}
-          />
-        )}
+          {activeTab === 'forecast' && (
+            <ForecastView 
+              forecastData={forecastData}
+              onHorizonChange={handleHorizonChange}
+              currentHorizon={currentHorizon}
+              activeCurrency={activeCurrency}
+            />
+          )}
 
-        {activeTab === 'goals' && (
-          <GoalsView 
-            goalData={goalsData}
-            onApplyRecourse={handleApplyRecourse}
-            activeCurrency={activeCurrency}
-          />
-        )}
+          {activeTab === 'transactions' && (
+            <TransactionsView 
+              transactions={transactions}
+              onOpenOverrideModal={(tx) => setSelectedTxForOverride(tx)}
+              activeCurrency={activeCurrency}
+            />
+          )}
 
-        {activeTab === 'recurring' && (
-          <RecurringView 
-            accountsSummary={accountsSummary}
-            activeCurrency={activeCurrency}
-          />
-        )}
+          {activeTab === 'goals' && (
+            <GoalsView 
+              goalData={goalsData}
+              onApplyRecourse={handleApplyRecourse}
+              activeCurrency={activeCurrency}
+            />
+          )}
 
-        {activeTab === 'simulator' && (
-          <SimulatorView 
-            activeCurrency={activeCurrency}
-          />
-        )}
+          {activeTab === 'recurring' && (
+            <RecurringView 
+              accountsSummary={accountsSummary}
+              activeCurrency={activeCurrency}
+            />
+          )}
 
-        {activeTab === 'xai' && (
-          <XaiView />
-        )}
-      </main>
+          {activeTab === 'simulator' && (
+            <SimulatorView 
+              activeCurrency={activeCurrency}
+            />
+          )}
+
+          {activeTab === 'xai' && (
+            <XaiView />
+          )}
+        </main>
+      </div>
 
       {/* 1-Click Category Override Modal */}
       {selectedTxForOverride && (

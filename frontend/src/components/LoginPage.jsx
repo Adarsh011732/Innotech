@@ -12,6 +12,7 @@ import {
 import VaultAnimation from './VaultAnimation';
 import BlurText from './reactbits/BlurText';
 import ShinyText from './reactbits/ShinyText';
+import CustomDropdown from './CustomDropdown';
 
 export const REGIONS = [
   { code: 'IN', name: 'India', flag: '🇮🇳', currency: 'INR', symbol: '₹' },
@@ -88,20 +89,22 @@ export default function LoginPage({ onLogin, activeRegion = 'IN' }) {
                   </span>
                 </label>
                 
-                <div className="relative">
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="w-full bg-[#FAFBFD] border border-zinc-200 hover:border-zinc-300 rounded-2xl py-3 px-4 text-xs font-semibold text-zinc-900 outline-none appearance-none cursor-pointer focus:border-zinc-900 transition-all pr-10 shadow-sm"
-                  >
-                    {REGIONS.map((r) => (
-                      <option key={r.code} value={r.code}>
-                        {r.flag} {r.name} — {r.symbol} ({r.currency})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-zinc-400 absolute right-3.5 top-3.5 pointer-events-none" />
-                </div>
+                <CustomDropdown 
+                  options={REGIONS.map(r => ({
+                    id: r.code,
+                    label: r.name,
+                    sublabel: `${r.currency} (${r.symbol})`,
+                    icon: r.flag,
+                    badge: r.symbol
+                  }))}
+                  value={selectedCountry}
+                  onChange={(val) => setSelectedCountry(val)}
+                  placeholder="Select Region"
+                  className="w-full"
+                  buttonClassName="w-full justify-between py-2.5 px-4 bg-[#FAFBFD] border-zinc-200 rounded-2xl text-xs"
+                  menuClassName="w-full left-0 right-0"
+                  align="left"
+                />
               </div>
 
               {/* Email */}
