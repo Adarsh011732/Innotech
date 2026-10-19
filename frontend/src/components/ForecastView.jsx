@@ -3,16 +3,10 @@ import {
   AlertTriangle, 
   TrendingUp, 
   Calendar, 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  DollarSign, 
   ShieldCheck,
   Activity,
-  Layers,
   Sparkles,
-  Zap,
-  Eye,
-  SlidersHorizontal
+  ArrowRight
 } from 'lucide-react';
 import CountUp from './reactbits/CountUp';
 import AnimatedContent from './reactbits/AnimatedContent';
@@ -42,17 +36,17 @@ function getSmoothSplinePath(points) {
 
 // Compact currency formatter for clean Y-axis ticks
 function formatCompactTick(val, currency = 'INR') {
-  if (currency === 'INR') {
-    const inr = val * 83;
-    const absVal = Math.abs(inr);
-    const sign = inr < 0 ? '-' : '';
+  const isINR = currency === 'INR';
+  const displayVal = isINR ? val * 83 : val;
+  const absVal = Math.abs(displayVal);
+  const sign = displayVal < 0 ? '-' : '';
+
+  if (isINR) {
     if (absVal >= 10000000) return `${sign}₹${(absVal / 10000000).toFixed(1)} Cr`;
     if (absVal >= 100000) return `${sign}₹${(absVal / 100000).toFixed(1)} L`;
     if (absVal >= 1000) return `${sign}₹${(absVal / 1000).toFixed(0)}k`;
     return `${sign}₹${absVal.toFixed(0)}`;
   } else {
-    const absVal = Math.abs(val);
-    const sign = val < 0 ? '-' : '';
     if (absVal >= 1000000) return `${sign}$${(absVal / 1000000).toFixed(1)}M`;
     if (absVal >= 1000) return `${sign}$${(absVal / 1000).toFixed(0)}k`;
     return `${sign}$${absVal.toFixed(0)}`;
@@ -67,38 +61,42 @@ export default function ForecastView({
 }) {
   const trajectory = forecastData?.trajectory || [];
   const rawBurnRate = forecastData?.historical_burn_rate_daily ?? 150.16;
+  const startingBalance = forecastData?.current_liquid_balance ?? (trajectory[0]?.median_balance || 6750.0);
   const hasShortfall = trajectory.some(p => p.lower_bound_90 <= 0);
 
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [chartTheme, setChartTheme] = useState('light'); // 'light' | 'dark'
   const svgRef = useRef(null);
 
   // SVG dimensions
   const svgWidth = 880;
-  const svgHeight = 290;
-  const paddingLeft = 70;
-  const paddingRight = 40;
-  const paddingTop = 32;
-  const paddingBottom = 45;
+  const svgHeight = 280;
+  const paddingLeft = 75;
+  const paddingRight = 35;
+  const paddingTop = 28;
+  const paddingBottom = 42;
 
-  let minVal = 0;
-  let maxVal = 10000;
+  // Compute mathematically consistent scale centered on the Expected Path
+  let minVal = -1000;
+  let maxVal = 8000;
+
   if (trajectory.length > 0) {
-    const allVals = trajectory.flatMap(p => [p.lower_bound_90, p.median_balance, p.upper_bound_90]);
-    minVal = Math.min(...allVals);
-    maxVal = Math.max(...allVals);
-    
-    const range = maxVal - minVal || 1000;
-    maxVal = maxVal + range * 0.15;
-    minVal = Math.min(minVal - range * 0.08, 0);
+    const medianVals = trajectory.map(p => p.median_balance);
+    const medianMin = Math.min(...medianVals, startingBalance);
+    const medianMax = Math.max(...medianVals, startingBalance);
+    const range = (medianMax - medianMin) || 4000;
+
+    // Set chart range so median trajectory occupies ~70% of vertical height
+    maxVal = medianMax + range * 0.40;
+    minVal = Math.min(medianMin - range * 0.35, 0);
   }
 
   const getY = (val) => {
+    const clampedVal = Math.max(minVal - 500, Math.min(maxVal + 500, val));
     return (
       svgHeight -
       paddingBottom -
-      ((val - minVal) / (maxVal - minVal || 1)) * (svgHeight - paddingTop - paddingBottom)
+      ((clampedVal - minVal) / (maxVal - minVal || 1)) * (svgHeight - paddingTop - paddingBottom)
     );
   };
 
@@ -111,8 +109,16 @@ export default function ForecastView({
 
   // Build points for spline computation
   const medianPoints = trajectory.map((p, i) => ({ x: getX(i), y: getY(p.median_balance) }));
-  const upperPoints = trajectory.map((p, i) => ({ x: getX(i), y: getY(p.upper_bound_90) }));
-  const lowerPoints = trajectory.map((p, i) => ({ x: getX(i), y: getY(p.lower_bound_90) }));
+  
+  // Clamped upper and lower points for the subtle confidence interval
+  const upperPoints = trajectory.map((p, i) => ({ 
+    x: getX(i), 
+    y: getY(Math.min(maxVal, p.upper_bound_90)) 
+  }));
+  const lowerPoints = trajectory.map((p, i) => ({ 
+    x: getX(i), 
+    y: getY(Math.max(minVal, p.lower_bound_90)) 
+  }));
 
   const medianSpline = getSmoothSplinePath(medianPoints);
   const upperSpline = getSmoothSplinePath(upperPoints);
@@ -128,6 +134,7 @@ export default function ForecastView({
     ? `${medianSpline} L ${medianPoints[medianPoints.length - 1].x} ${getY(minVal)} L ${medianPoints[0].x} ${getY(minVal)} Z`
     : '';
 
+  // 4 Evenly Spaced Y-Ticks
   const yTicks = [
     maxVal,
     maxVal * 0.66 + minVal * 0.33,
@@ -135,6 +142,7 @@ export default function ForecastView({
     minVal < 0 ? 0 : minVal
   ];
 
+  // Date milestones along X-axis
   const dateMilestones = [0, 0.25, 0.5, 0.75, 1.0].map(pct => {
     const idx = Math.min(trajectory.length - 1, Math.round((trajectory.length - 1) * pct));
     const offset = idx;
@@ -177,135 +185,112 @@ export default function ForecastView({
     date: new Date().toISOString()
   };
 
-  const endingBalance = trajectory.length > 0 ? trajectory[trajectory.length - 1].median_balance : 28520.30;
+  const endingBalance = trajectory.length > 0 ? trajectory[trajectory.length - 1].median_balance : -568.29;
   const isEndingPositive = endingBalance >= 0;
+  const netDrift = endingBalance - startingBalance;
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F4F6FA] text-zinc-900">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5 select-none bg-[#F4F6FA] text-zinc-900 font-sans">
       
       {/* Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight flex items-center gap-2.5">
-            <span>Cash Flow Forecast</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-teal-600" />
-              <span>90% Confidence Corridor</span>
-            </span>
+          <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">
+            Cash Flow Forecast
           </h1>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">
-            Multi-horizon Monte Carlo projection of liquid buffer and growth trajectory.
+          <p className="text-xs text-zinc-500 mt-0.5 font-medium">
+            Multi-horizon Monte Carlo projection of liquid reserves and solvency runway.
           </p>
         </div>
         
-        {/* Horizon selector chips - Scaleless to prevent text blurring */}
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle Pill */}
-          <button
-            onClick={() => setChartTheme(chartTheme === 'light' ? 'dark' : 'light')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black/[0.06] text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors btn-interactive"
-            title="Toggle Light / Dark Chart Surface"
-          >
-            <span className="text-xs">{chartTheme === 'light' ? '🌙 Dark Canvas' : '☀️ Light Canvas'}</span>
-          </button>
-
-          <div className="flex items-center gap-1 bg-white border border-black/[0.06] p-1 rounded-full shadow-sm">
-            {[30, 60, 90].map((days) => (
-              <button
-                key={days}
-                onClick={() => onHorizonChange(days)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors duration-150 ${
-                  currentHorizon === days 
-                    ? 'bg-[#18191E] text-white shadow-sm' 
-                    : 'text-zinc-500 hover:text-zinc-900'
-                }`}
-              >
-                {days} Days
-              </button>
-            ))}
-          </div>
+        {/* Horizon Selector Chips */}
+        <div className="flex items-center gap-1 bg-white border border-zinc-200/90 p-1 rounded-xl shadow-sm">
+          {[30, 60, 90].map((days) => (
+            <button
+              key={days}
+              onClick={() => onHorizonChange(days)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                currentHorizon === days 
+                  ? 'bg-zinc-900 text-white shadow-sm' 
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              {days} Days
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Runway Alert Banner */}
-      <div>
-        {hasShortfall ? (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-red-800 shadow-sm">
-            <div className="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
-            <div className="text-xs">
-              <span className="font-bold">Liquidity Warning (90% Lower Bound):</span> Conservative scenarios predict cash reserves approaching zero around Day 42. Consider applying a budget optimization in the simulator.
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white border border-black/[0.06] rounded-2xl p-4 flex items-center justify-between text-zinc-800 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-zinc-900 flex items-center gap-2">
-                  <span>Solvency Runway Resilient</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                </div>
-                <div className="text-[11px] text-zinc-500 mt-0.5">
-                  Liquid reserves maintain positive buffer through the full {currentHorizon}-day window.
-                </div>
-              </div>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full hidden sm:inline-block">
-              {currentHorizon}+ Days Safe
+      {/* Proportionate Risk Alert Callout */}
+      {hasShortfall ? (
+        <div className="bg-amber-50/80 border border-amber-200/90 rounded-xl px-4 py-3 flex items-center justify-between text-xs text-amber-950 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>
+              <strong className="font-semibold">Liquidity Notice (Conservative 90% Bound):</strong> Reserves approach zero around Day 42 under high-burn scenarios.
             </span>
           </div>
-        )}
-      </div>
+          <span className="text-[11px] font-semibold text-amber-800 hidden sm:inline-block">
+            Simulation Confidence: 90%
+          </span>
+        </div>
+      ) : (
+        <div className="bg-white border border-zinc-200/80 rounded-xl px-4 py-3 flex items-center justify-between text-xs text-zinc-800 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              <strong className="font-semibold text-zinc-900">Solvency Runway Resilient:</strong> Liquid buffer maintains safe positive surplus through the {currentHorizon}-day window.
+            </span>
+          </div>
+          <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+            {currentHorizon}+ Days Safe
+          </span>
+        </div>
+      )}
 
       {/* Main Forecast Visualizer Card */}
-      <div className="bg-white border border-black/[0.06] rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)] card-interactive">
+      <div className="bg-white border border-zinc-200/90 rounded-2xl p-6 shadow-sm">
         
-        {/* Metric Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-3 border-b border-zinc-100">
+        {/* Metric Header: Prioritizes Ending Balance, Period, and Starting Drift */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-zinc-100">
           <div>
-            <span className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5">
-              <span>Projected Ending Balance ({currentHorizon} Days)</span>
-              <Activity className="w-3.5 h-3.5 text-teal-600" />
-            </span>
-            <div className="text-3xl font-extrabold text-zinc-900 mt-0.5 flex items-baseline gap-2.5">
-              <span className="font-mono tabular-nums">
-                <CountUp 
-                  to={getConvertedValue(endingBalance, activeCurrency, true)} 
-                  duration={1.2} 
-                  decimals={2} 
-                  prefix={activeCurrency === 'INR' ? '₹' : '$'} 
-                />
-              </span>
-              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${isEndingPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                {isEndingPositive ? '+14.2% Growth' : 'Deficit Risk'}
+            <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500 mb-1">
+              <span>Projected Ending Balance (at Day {currentHorizon})</span>
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${isEndingPositive ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`}>
+                {isEndingPositive ? 'Growth Trajectory' : 'Deficit Risk'}
               </span>
             </div>
+            
+            <div className="text-3xl font-extrabold text-zinc-900 tracking-tight font-mono tabular-nums">
+              <CountUp 
+                to={getConvertedValue(endingBalance, activeCurrency, true)} 
+                duration={0.8} 
+                decimals={2} 
+                prefix={activeCurrency === 'INR' ? '₹' : '$'} 
+              />
+            </div>
+            
+            <p className="text-[11px] text-zinc-400 mt-1 font-medium">
+              Starting Liquid Reserve: <span className="font-semibold text-zinc-700">{formatMoney(startingBalance, activeCurrency, true)}</span> • Net Horizon Drift: <span className="font-semibold text-zinc-700">{formatMoney(netDrift, activeCurrency, true)}</span>
+            </p>
           </div>
 
-          {/* Interactive Legend */}
-          <div className="flex items-center gap-4 text-xs text-zinc-500">
+          {/* Clean Restrained Legend */}
+          <div className="flex items-center gap-5 text-xs text-zinc-600">
             <div className="flex items-center gap-2">
-              <span className="w-3.5 h-3 rounded-sm bg-teal-500/20 border border-teal-500/60"></span>
-              <span>Likely Range (90% CQR)</span>
+              <span className="w-3.5 h-2 rounded-sm bg-[#12B8AC]/15 border border-[#12B8AC]/40"></span>
+              <span>90% Confidence Span</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-4 h-1 rounded-full bg-teal-500"></span>
-              <span className="text-zinc-800 font-semibold">Expected Path</span>
+              <span className="w-4 h-0.5 rounded-full bg-[#0F766E]"></span>
+              <span className="text-zinc-900 font-semibold">Expected Path</span>
             </div>
           </div>
         </div>
 
-        {/* Dynamic Canvas for SVG Chart - Adapts smoothly to light or dark mode */}
+        {/* Clean Light Chart Surface */}
         <div 
-          className={`relative w-full h-[320px] sm:h-[350px] rounded-2xl p-2 sm:p-4 overflow-hidden cursor-crosshair group shadow-inner transition-colors duration-300 ${
-            chartTheme === 'dark'
-              ? 'bg-[#111216] border border-black/[0.15]'
-              : 'bg-gradient-to-b from-[#F8FAFC] to-[#F1F5F9] border border-zinc-200/80'
-          }`}
+          className="relative w-full h-[300px] sm:h-[320px] rounded-xl bg-[#FAFAFC] border border-zinc-200/80 p-2 sm:p-4 overflow-hidden cursor-crosshair group shadow-inner"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -316,31 +301,18 @@ export default function ForecastView({
             preserveAspectRatio="none"
           >
             <defs>
-              <filter id="forecastGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-
-              <linearGradient id="corridorGradientLight" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0D9488" stopOpacity="0.22" />
-                <stop offset="100%" stopColor="#14B8A6" stopOpacity="0.04" />
+              <linearGradient id="subtleCorridorGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#12B8AC" stopOpacity="0.12" />
+                <stop offset="100%" stopColor="#12B8AC" stopOpacity="0.02" />
               </linearGradient>
 
-              <linearGradient id="corridorGradientDark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.32" />
-                <stop offset="100%" stopColor="#00B4D8" stopOpacity="0.05" />
-              </linearGradient>
-
-              <linearGradient id="medianGlowLight" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0F766E" stopOpacity="0.18" />
+              <linearGradient id="subtleMedianArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0F766E" stopOpacity="0.08" />
                 <stop offset="100%" stopColor="#0F766E" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
-            {/* Horizontal Dashed Y-Axis Grid Lines & Clean Compact Labels */}
+            {/* Horizontal Gridlines & Y-Axis Labels */}
             {yTicks.map((val, idx) => {
               const yPos = getY(val);
               return (
@@ -350,15 +322,15 @@ export default function ForecastView({
                     y1={yPos} 
                     x2={svgWidth - paddingRight} 
                     y2={yPos} 
-                    stroke={chartTheme === 'dark' ? '#1E202B' : '#E2E8F0'} 
+                    stroke="#E5E7EB" 
                     strokeWidth="1" 
                     strokeDasharray={val === 0 ? "none" : "3 3"} 
                   />
                   <text 
-                    x={paddingLeft - 8} 
+                    x={paddingLeft - 10} 
                     y={yPos + 4} 
                     textAnchor="end" 
-                    fill={chartTheme === 'dark' ? '#9CA3AF' : '#64748B'} 
+                    fill="#6B7280" 
                     fontSize="10" 
                     fontFamily="monospace"
                     fontWeight="600"
@@ -369,20 +341,33 @@ export default function ForecastView({
               );
             })}
 
-            {/* Zero Baseline Line if negative */}
+            {/* Zero Baseline Line if Negative */}
             {minVal < 0 && (
-              <line 
-                x1={paddingLeft} 
-                y1={getY(0)} 
-                x2={svgWidth - paddingRight} 
-                y2={getY(0)} 
-                stroke="#EF4444" 
-                strokeWidth="1.5" 
-                strokeDasharray="4 4" 
-              />
+              <g>
+                <line 
+                  x1={paddingLeft} 
+                  y1={getY(0)} 
+                  x2={svgWidth - paddingRight} 
+                  y2={getY(0)} 
+                  stroke="#F43F5E" 
+                  strokeWidth="1.2" 
+                  strokeDasharray="4 4" 
+                />
+                <text 
+                  x={svgWidth - paddingRight} 
+                  y={getY(0) - 4} 
+                  textAnchor="end" 
+                  fill="#E11D48" 
+                  fontSize="9" 
+                  fontFamily="monospace"
+                  fontWeight="600"
+                >
+                  0 Baseline
+                </text>
+              </g>
             )}
 
-            {/* Vertical Date Grid Guidelines */}
+            {/* Vertical Milestone Guidelines */}
             {dateMilestones.map((ms, idx) => (
               <g key={idx}>
                 <line 
@@ -390,15 +375,15 @@ export default function ForecastView({
                   y1={paddingTop} 
                   x2={ms.x} 
                   y2={svgHeight - paddingBottom} 
-                  stroke={chartTheme === 'dark' ? '#171821' : '#E2E8F0'} 
+                  stroke="#F3F4F6" 
                   strokeWidth="1" 
-                  strokeDasharray="2 4" 
+                  strokeDasharray="2 3" 
                 />
                 <text 
                   x={ms.x} 
                   y={svgHeight - paddingBottom + 16} 
                   textAnchor="middle" 
-                  fill={chartTheme === 'dark' ? '#9CA3AF' : '#64748B'} 
+                  fill="#6B7280" 
                   fontSize="10" 
                   fontWeight="600"
                 >
@@ -407,40 +392,39 @@ export default function ForecastView({
               </g>
             ))}
 
-            {/* 90% Confidence Corridor Area */}
+            {/* Subtle 90% Confidence Interval Band */}
             {bandPolygon && (
               <path 
                 d={bandPolygon} 
-                fill={chartTheme === 'dark' ? 'url(#corridorGradientDark)' : 'url(#corridorGradientLight)'} 
-                stroke={chartTheme === 'dark' ? '#00E5FF' : '#0D9488'} 
+                fill="url(#subtleCorridorGrad)" 
+                stroke="#12B8AC" 
                 strokeWidth="0.8" 
-                strokeOpacity="0.5" 
+                strokeOpacity="0.4" 
               />
             )}
 
-            {/* Area Under Median Curve */}
+            {/* Area Under Median Path */}
             {areaUnderMedian && (
               <path 
                 d={areaUnderMedian} 
-                fill={chartTheme === 'dark' ? 'url(#medianAreaGlow)' : 'url(#medianGlowLight)'} 
+                fill="url(#subtleMedianArea)" 
               />
             )}
 
-            {/* Median Spline Path with Gradient Stroke */}
+            {/* Clean Primary Expected Path Spline */}
             {medianSpline && (
               <path 
                 d={medianSpline} 
                 fill="none" 
-                stroke={chartTheme === 'dark' ? '#00E5FF' : '#0F766E'} 
-                strokeWidth="3.2" 
+                stroke="#0F766E" 
+                strokeWidth="2.8" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
-                filter={chartTheme === 'dark' ? 'url(#forecastGlow)' : 'none'}
                 className="animate-draw-line"
               />
             )}
 
-            {/* Active Hover Crosshair */}
+            {/* Hover Crosshair & Node */}
             {hoveredIdx !== null && activePoint && (
               <g>
                 <line 
@@ -448,96 +432,84 @@ export default function ForecastView({
                   y1={paddingTop} 
                   x2={mousePos.x} 
                   y2={svgHeight - paddingBottom} 
-                  stroke={chartTheme === 'dark' ? '#00E5FF' : '#0F766E'} 
-                  strokeWidth="1.5" 
-                  strokeDasharray="4 4" 
+                  stroke="#0F766E" 
+                  strokeWidth="1.2" 
+                  strokeDasharray="3 3" 
                 />
                 <circle 
                   cx={mousePos.x} 
                   cy={mousePos.y} 
-                  r="5" 
-                  fill={chartTheme === 'dark' ? '#00E5FF' : '#0F766E'} 
+                  r="4.5" 
+                  fill="#0F766E" 
                   stroke="#FFFFFF" 
-                  strokeWidth="2.5" 
+                  strokeWidth="2" 
                 />
               </g>
             )}
           </svg>
 
-          {/* Floating Tooltip - Fixed "Day (+undefined Days)" Bug */}
+          {/* Clean Informative Hover Tooltip with Consistent Currency */}
           {hoveredIdx !== null && activePoint && (
-            <div 
-              className={`pointer-events-none absolute top-4 right-4 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl text-xs z-30 transition-all ${
-                chartTheme === 'dark'
-                  ? 'bg-black/90 border border-teal-500/50 text-white'
-                  : 'bg-white/95 border border-zinc-200 text-zinc-900 shadow-xl'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-3 mb-1">
-                <span className="font-extrabold text-teal-600 font-mono">
+            <div className="pointer-events-none absolute top-3 right-3 bg-white/95 border border-zinc-200/90 rounded-xl p-3 shadow-lg text-xs z-30 min-w-[210px] backdrop-blur-sm">
+              <div className="flex items-center justify-between text-zinc-500 font-medium text-[11px] mb-1.5 pb-1 border-b border-zinc-100">
+                <span className="font-semibold text-zinc-900">
                   {activeIdx === 0 ? 'Today (Day 0)' : `Day +${activeIdx}`}
                 </span>
-                {activePoint.date && (
-                  <span className="text-[10px] text-zinc-400 font-medium">
-                    {new Date(activePoint.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                )}
+                <span>
+                  {activePoint.date ? new Date(activePoint.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
+                </span>
               </div>
-              <div className="text-xs mb-1">
-                Expected: <span className="font-bold font-mono">{formatMoney(activePoint.median_balance, activeCurrency, true)}</span>
+              <div className="flex items-center justify-between font-mono mb-1">
+                <span className="text-zinc-600 font-sans">Expected Balance:</span>
+                <span className="font-bold text-zinc-950">{formatMoney(activePoint.median_balance, activeCurrency, true)}</span>
               </div>
-              <div className="text-[10px] text-zinc-400">
-                90% Corridor: [{formatMoney(activePoint.lower_bound_90, activeCurrency, true)} → {formatMoney(activePoint.upper_bound_90, activeCurrency, true)}]
+              <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+                <span className="font-sans">90% Range:</span>
+                <span>[{formatMoney(activePoint.lower_bound_90, activeCurrency, true)} → {formatMoney(activePoint.upper_bound_90, activeCurrency, true)}]</span>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Burn Rate & Runway Metrics Grid */}
-      <AnimatedContent distance={20} duration={0.4} stagger={0.08}>
+      {/* 3 Compact Supporting Metrics matching design system */}
+      <AnimatedContent distance={15} duration={0.3} stagger={0.05}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
-            <div>
-              <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-                <span className="font-semibold">Average Daily Outflow</span>
-                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-              </div>
-              <div className="text-2xl font-extrabold text-zinc-900 font-mono">
-                {formatMoney(rawBurnRate, activeCurrency, true)} <span className="text-xs font-normal text-zinc-400">/ day</span>
-              </div>
-              <p className="text-[11px] text-zinc-400 mt-1">Calculated over past 90 days recurring activity</p>
+          <div className="bg-white rounded-2xl p-5 border border-zinc-200/90 shadow-sm">
+            <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Average Daily Outflow</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
             </div>
+            <div className="text-2xl font-bold font-mono text-zinc-900 tracking-tight">
+              {formatMoney(rawBurnRate, activeCurrency, true)} <span className="text-xs font-normal text-zinc-400">/ day</span>
+            </div>
+            <p className="text-[11px] text-zinc-400 mt-1">Calculated over past 90 days recurring activity</p>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
-            <div>
-              <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-                <span className="font-semibold">Zero-Income Runway</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              </div>
-              <div className="text-2xl font-extrabold text-zinc-900 font-mono">
-                228 Days
-              </div>
-              <p className="text-[11px] text-emerald-600 mt-1 font-semibold flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" />
-                <span>Exceeds 6-month safety benchmark (180d)</span>
-              </p>
+          <div className="bg-white rounded-2xl p-5 border border-zinc-200/90 shadow-sm">
+            <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Zero-Income Runway</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
             </div>
+            <div className="text-2xl font-bold font-mono text-zinc-900 tracking-tight">
+              228 Days
+            </div>
+            <p className="text-[11px] text-emerald-700 mt-1 font-semibold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Exceeds 6-month safety benchmark (180d)</span>
+            </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
-            <div>
-              <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-                <span className="font-semibold">Solvency Health Score</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">AAA Rating</span>
-              </div>
-              <div className="text-2xl font-extrabold text-zinc-900 font-mono">
-                96 <span className="text-sm font-normal text-zinc-400">/ 100</span>
-              </div>
-              <p className="text-[11px] text-zinc-400 mt-1">Top tier resilience & low shock vulnerability</p>
+          <div className="bg-white rounded-2xl p-5 border border-zinc-200/90 shadow-sm">
+            <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Solvency Health Score</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800">AAA Rating</span>
             </div>
+            <div className="text-2xl font-bold font-mono text-zinc-900 tracking-tight">
+              96 <span className="text-sm font-normal text-zinc-400">/ 100</span>
+            </div>
+            <p className="text-[11px] text-zinc-400 mt-1">Top-tier liquid resilience & low shock vulnerability</p>
           </div>
 
         </div>

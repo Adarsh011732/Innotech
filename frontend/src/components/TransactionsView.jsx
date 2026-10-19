@@ -84,30 +84,30 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
         activeCurrency={activeCurrency}
       />
 
-      {/* Modern White Ledger Card Container from image.png */}
-      <div className="bg-white border border-black/[0.06] rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)] card-interactive">
+      {/* Clean Institutional Ledger Card Container */}
+      <div className="bg-white border border-zinc-200/90 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-zinc-100 text-zinc-400 bg-[#FAFBFD]">
-                <th className="py-4 px-6 font-semibold">Transaction / Merchant</th>
-                <th className="py-4 px-6 font-semibold">Category</th>
-                <th className="py-4 px-6 font-semibold">Date & Time</th>
-                <th className="py-4 px-6 font-semibold">Payment Mode</th>
-                <th className="py-4 px-6 font-semibold text-right">Amount</th>
-                <th className="py-4 px-6 font-semibold text-center">ML Override</th>
+              <tr className="border-b border-zinc-200/80 text-zinc-500 bg-[#FAFAFC] uppercase text-[11px] tracking-wider">
+                <th className="py-3.5 px-6 font-semibold">Transaction / Merchant</th>
+                <th className="py-3.5 px-6 font-semibold">Category</th>
+                <th className="py-3.5 px-6 font-semibold">Date</th>
+                <th className="py-3.5 px-6 font-semibold">Payment Mode</th>
+                <th className="py-3.5 px-6 font-semibold text-right">Amount</th>
+                <th className="py-3.5 px-6 font-semibold text-center">ML Override</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 text-zinc-800">
               {filtered.map((tx, idx) => {
-                const isOutflow = tx.amount < 0;
+                const isOutflow = tx.tx_type === 'debit' || tx.amount < 0;
                 return (
                   <tr key={tx.id || idx} className="hover:bg-zinc-50/80 transition-colors group">
-                    <td className="py-4 px-6 font-bold text-zinc-900">
+                    <td className="py-3.5 px-6 font-bold text-zinc-900">
                       <div className="flex items-center gap-3">
                         {getMerchantIcon(tx.category)}
                         <div>
-                          <span className="block font-semibold group-hover:text-teal-600 transition-colors">
+                          <span className="block font-semibold group-hover:text-teal-700 transition-colors">
                             {tx.description}
                           </span>
                           <span className="text-[10px] text-zinc-400 font-mono font-normal">
@@ -116,26 +116,26 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className="px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-semibold border border-black/[0.03]">
+                    <td className="py-3.5 px-6">
+                      <span className="px-2.5 py-1 rounded-lg bg-zinc-100 text-zinc-700 text-[11px] font-medium border border-zinc-200/50">
                         {tx.category}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-zinc-500 font-medium">
-                      {tx.date || '18 Oct, 2026'}
+                    <td className="py-3.5 px-6 text-zinc-500 font-medium">
+                      {tx.date ? new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Oct 18, 2026'}
                     </td>
-                    <td className="py-4 px-6">
-                      <span className="text-[10px] font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-md">
+                    <td className="py-3.5 px-6">
+                      <span className="text-[10px] font-mono text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-md">
                         {idx % 3 === 0 ? 'UPI' : idx % 3 === 1 ? 'NetBanking' : 'Debit Card'}
                       </span>
                     </td>
-                    <td className={`py-4 px-6 font-mono font-bold text-right text-sm ${isOutflow ? 'text-zinc-900' : 'text-emerald-600'}`}>
-                      {isOutflow ? '-' : '+'}{formatMoney(Math.abs(tx.amount), activeCurrency, false)}
+                    <td className={`py-3.5 px-6 font-mono font-bold text-right text-sm tabular-nums ${isOutflow ? 'text-zinc-900' : 'text-emerald-700'}`}>
+                      {isOutflow ? '-' : '+'}{formatMoney(Math.abs(tx.amount), activeCurrency, true)}
                     </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="py-3.5 px-6 text-center">
                       <button 
                         onClick={() => onOpenOverrideModal(tx)}
-                        className="p-1.5 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-900 transition-colors btn-interactive"
+                        className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-zinc-900 transition-colors btn-interactive"
                         title="Override ML Classification"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
