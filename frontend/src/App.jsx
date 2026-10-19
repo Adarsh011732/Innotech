@@ -11,7 +11,9 @@ import CategoryOverrideModal from './components/CategoryOverrideModal';
 import LoginPage, { REGIONS } from './components/LoginPage';
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('fintrixity_session') === 'active';
+  });
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeRegion, setActiveRegion] = useState('IN'); // Default India
   const [activeCurrency, setActiveCurrency] = useState('INR'); // Default INR
@@ -164,6 +166,7 @@ export default function App() {
   const handleLogin = (regionCode, currencyCode) => {
     setActiveRegion(regionCode);
     setActiveCurrency(currencyCode);
+    localStorage.setItem('fintrixity_session', 'active');
     setIsLoggedIn(true);
     const reg = REGIONS.find(r => r.code === regionCode) || REGIONS[0];
     showToast(`Logged in successfully. Region: ${reg.name} (${reg.currency})`, 'success');
@@ -171,6 +174,7 @@ export default function App() {
 
   // Logout handler
   const handleLogout = () => {
+    localStorage.removeItem('fintrixity_session');
     setIsLoggedIn(false);
     showToast('Signed out. Please select your region to log in.');
   };
