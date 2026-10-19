@@ -102,3 +102,13 @@ body {
   animation: dropFade 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: top right;
 }
+
+/* Shimmer shine animation */
+@keyframes shine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

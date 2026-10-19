@@ -16,12 +16,19 @@ import {
   Gamepad2, 
   Car, 
   Home, 
-  DollarSign,
-  Plus,
-  Edit3,
-  CreditCard,
-  X
+  DollarSign, 
+  Plus, 
+  Edit3, 
+  CreditCard, 
+  X,
+  Sparkles
 } from 'lucide-react';
+
+import SpotlightCard from './reactbits/SpotlightCard';
+import BlurText from './reactbits/BlurText';
+import AnimatedContent from './reactbits/AnimatedContent';
+import CountUp from './reactbits/CountUp';
+import ShinyText from './reactbits/ShinyText';
 
 export default function Overview({ 
   accountsSummary, 
@@ -36,7 +43,7 @@ export default function Overview({
   const [cashflowPeriod, setCashflowPeriod] = useState('yearly');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [hoveredBarIndex, setHoveredBarIndex] = useState(2); // March highlighted by default as in image.png
+  const [hoveredBarIndex, setHoveredBarIndex] = useState(2); // March highlighted by default
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
 
   // Dynamic values from backend API with seamless defaults matching image.png
@@ -94,10 +101,18 @@ export default function Overview({
   return (
     <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#08090C]">
       
-      {/* Title Row (Exact from image.png) */}
+      {/* Title Row with React Bits BlurText */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Overview</h1>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <BlurText 
+              text="Overview" 
+              delay={80} 
+              blur={6} 
+              className="text-white font-extrabold" 
+            />
+            <span className="w-2 h-2 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]"></span>
+          </h1>
           <p className="text-xs text-[#9CA3AF] mt-0.5">Here is the summary of overall data</p>
         </div>
         <div className="flex items-center gap-3">
@@ -115,130 +130,139 @@ export default function Overview({
         </div>
       </div>
 
-      {/* Top 3 Metric Cards (Exact from image.png!) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        
-        {/* Card 1: "My balance" - VIBRANT ORANGE GRADIENT from image.png */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-tr from-[#FF3D00] via-[#FF5722] to-[#FFA000] p-5 sm:p-6 text-white shadow-xl shadow-[#FF5722]/30 flex flex-col justify-between min-h-[175px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#FF5722]/45 group">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
-                <Wallet className="w-4 h-4 text-[#FF5722]" />
+      {/* Top 3 Metric Cards with React Bits SpotlightCard & CountUp & AnimatedContent */}
+      <AnimatedContent distance={25} duration={0.5} stagger={0.1}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          {/* Card 1: "My balance" - VIBRANT ORANGE GRADIENT with React Bits Spotlight & CountUp */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-tr from-[#FF3D00] via-[#FF5722] to-[#FFA000] p-5 sm:p-6 text-white shadow-xl shadow-[#FF5722]/30 flex flex-col justify-between min-h-[175px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#FF5722]/50 group">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
+                  <Wallet className="w-4 h-4 text-[#FF5722]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">My balance</h3>
+                  <p className="text-[11px] text-white/80">Wallet Overview & Spending</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">My balance</h3>
-                <p className="text-[11px] text-white/80">Wallet Overview & Spending</p>
+              <button className="text-white/70 hover:text-white">
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-baseline justify-between my-3">
+              <div className="text-3xl font-extrabold tracking-tight">
+                <CountUp to={liquidCash} decimals={2} duration={1.2} />
+              </div>
+              <div className="bg-white text-[#111215] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+                <span>+1.5%</span>
+                <ArrowUpRight className="w-3 h-3 stroke-[3]" />
               </div>
             </div>
-            <button className="text-white/70 hover:text-white">
-              <MoreHorizontal className="w-4 h-4" />
+
+            <button 
+              onClick={() => setActiveTab('transactions')}
+              className="flex items-center justify-between text-xs font-semibold text-white/90 hover:text-white pt-2.5 border-t border-white/20 transition-all group-hover:translate-x-0.5"
+            >
+              <span>See details</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="flex items-baseline justify-between my-3">
-            <div className="text-3xl font-extrabold tracking-tight">
-              ${liquidCash.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="bg-white text-[#111215] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-              <span>+1.5%</span>
-              <ArrowUpRight className="w-3 h-3 stroke-[3]" />
-            </div>
-          </div>
-
-          <button 
-            onClick={() => setActiveTab('transactions')}
-            className="flex items-center justify-between text-xs font-semibold text-white/90 hover:text-white pt-2.5 border-t border-white/20 transition-all group-hover:translate-x-0.5"
+          {/* Card 2: "Savings account" - React Bits SpotlightCard */}
+          <SpotlightCard 
+            spotlightColor="rgba(255, 87, 34, 0.28)" 
+            className="flex flex-col justify-between min-h-[175px] p-5 sm:p-6"
           >
-            <span>See details</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Card 2: "Savings account" - Dark Frosted Card from image.png */}
-        <div className="rounded-3xl bg-[#14161E] border border-[#232634] p-5 sm:p-6 text-white flex flex-col justify-between min-h-[175px] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#FF5722]/50 hover:shadow-xl hover:shadow-black/50 group">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
-                <Calculator className="w-4 h-4 text-[#111215]" />
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
+                  <Calculator className="w-4 h-4 text-[#111215]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Savings account</h3>
+                  <p className="text-[11px] text-[#9CA3AF]">Steady Growth Savings</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">Savings account</h3>
-                <p className="text-[11px] text-[#9CA3AF]">Steady Growth Savings</p>
+              <button className="text-[#6B7280] hover:text-white">
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-baseline justify-between my-3">
+              <div className="text-3xl font-extrabold tracking-tight text-white">
+                <CountUp to={savingsBalance} decimals={2} duration={1.2} />
+              </div>
+              <div className="text-[11px] font-extrabold flex items-center gap-0.5">
+                <ShinyText text="+3.2% ↑" speed={2.5} />
               </div>
             </div>
-            <button className="text-[#6B7280] hover:text-white">
-              <MoreHorizontal className="w-4 h-4" />
+
+            <button 
+              onClick={() => setActiveTab('goals')}
+              className="flex items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-white pt-2.5 border-t border-[#232634] transition-all group-hover:translate-x-0.5"
+            >
+              <span>View summary</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
-          </div>
+          </SpotlightCard>
 
-          <div className="flex items-baseline justify-between my-3">
-            <div className="text-3xl font-extrabold tracking-tight">
-              ${savingsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-[#FF5722] text-[11px] font-extrabold flex items-center gap-0.5">
-              <span>+3.2%</span>
-              <ArrowUpRight className="w-3 h-3 stroke-[3]" />
-            </div>
-          </div>
-
-          <button 
-            onClick={() => setActiveTab('goals')}
-            className="flex items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-white pt-2.5 border-t border-[#232634] transition-all group-hover:translate-x-0.5"
+          {/* Card 3: "Investment portfolio" - React Bits SpotlightCard */}
+          <SpotlightCard 
+            spotlightColor="rgba(255, 87, 34, 0.28)" 
+            className="flex flex-col justify-between min-h-[175px] p-5 sm:p-6"
           >
-            <span>View summary</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Card 3: "Investment portfolio" - Dark Frosted Card from image.png */}
-        <div className="rounded-3xl bg-[#14161E] border border-[#232634] p-5 sm:p-6 text-white flex flex-col justify-between min-h-[175px] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#FF5722]/50 hover:shadow-xl hover:shadow-black/50 group">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
-                <TrendingUp className="w-4 h-4 text-[#111215]" />
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
+                  <TrendingUp className="w-4 h-4 text-[#111215]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Investment portfolio</h3>
+                  <p className="text-[11px] text-[#9CA3AF]">Track Your Wealth Growth</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">Investment portfolio</h3>
-                <p className="text-[11px] text-[#9CA3AF]">Track Your Wealth Growth</p>
+              <button className="text-[#6B7280] hover:text-white">
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-baseline justify-between my-3">
+              <div className="text-3xl font-extrabold tracking-tight text-white">
+                <CountUp to={netWorth} decimals={2} duration={1.2} />
+              </div>
+              <div className="text-[11px] font-extrabold flex items-center gap-0.5">
+                <ShinyText text="+4.7% ↑" speed={2.5} />
               </div>
             </div>
-            <button className="text-[#6B7280] hover:text-white">
-              <MoreHorizontal className="w-4 h-4" />
+
+            <button 
+              onClick={() => setActiveTab('forecast')}
+              className="flex items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-white pt-2.5 border-t border-[#232634] transition-all group-hover:translate-x-0.5"
+            >
+              <span>Analyze performance</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
-          </div>
+          </SpotlightCard>
 
-          <div className="flex items-baseline justify-between my-3">
-            <div className="text-3xl font-extrabold tracking-tight">
-              ${netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-[#FF5722] text-[11px] font-extrabold flex items-center gap-0.5">
-              <span>+4.7%</span>
-              <ArrowUpRight className="w-3 h-3 stroke-[3]" />
-            </div>
-          </div>
-
-          <button 
-            onClick={() => setActiveTab('forecast')}
-            className="flex items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-white pt-2.5 border-t border-[#232634] transition-all group-hover:translate-x-0.5"
-          >
-            <span>Analyze performance</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
+      </AnimatedContent>
 
-      </div>
-
-      {/* Middle Section: My Wallet (2x2 Grid) & Cash Flow (Vertical Bars) */}
+      {/* Middle Section: My Wallet & Cash Flow with React Bits SpotlightCards */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
         
-        {/* Left Column: My Wallet (5 cols) */}
-        <div className="xl:col-span-5 bg-[#14161E] border border-[#232634] rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between shadow-xl card-interactive">
+        {/* Left Column: My Wallet (5 cols) wrapped in SpotlightCard */}
+        <SpotlightCard 
+          spotlightColor="rgba(255, 87, 34, 0.2)" 
+          className="xl:col-span-5 flex flex-col justify-between p-5 sm:p-6"
+        >
           <div>
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-base font-bold text-white">My Wallet</h2>
               <button 
                 onClick={() => setShowAddWalletModal(true)}
-                className="bg-gradient-to-r from-[#FF5722] to-[#FF6D00] hover:from-[#F4511E] hover:to-[#FF5722] text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-md shadow-[#FF5722]/25 transition-all flex items-center gap-1 active:scale-95"
+                className="bg-gradient-to-r from-[#FF5722] to-[#FF6D00] hover:from-[#F4511E] hover:to-[#FF5722] text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-md shadow-[#FF5722]/25 transition-all flex items-center gap-1 active:scale-95 btn-interactive"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add New</span>
@@ -250,7 +274,7 @@ export default function Overview({
             <div className="grid grid-cols-2 gap-3">
               
               {/* Wallet 1: USD */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/40 rounded-2xl p-3.5 flex flex-col justify-between transition-all group">
+              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <span className="text-base">🇺🇸</span>
@@ -266,7 +290,7 @@ export default function Overview({
               </div>
 
               {/* Wallet 2: EUR */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/40 rounded-2xl p-3.5 flex flex-col justify-between transition-all group">
+              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <span className="text-base">🇪🇺</span>
@@ -282,7 +306,7 @@ export default function Overview({
               </div>
 
               {/* Wallet 3: AUD */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/40 rounded-2xl p-3.5 flex flex-col justify-between transition-all group">
+              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <span className="text-base">🇦🇺</span>
@@ -298,7 +322,7 @@ export default function Overview({
               </div>
 
               {/* Wallet 4: GBP */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/40 rounded-2xl p-3.5 flex flex-col justify-between transition-all group">
+              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <span className="text-base">🇬🇧</span>
@@ -315,16 +339,19 @@ export default function Overview({
 
             </div>
           </div>
-        </div>
+        </SpotlightCard>
 
-        {/* Right Column: Cash Flow with Rounded Bars & Floating Tooltip (7 cols) */}
-        <div className="xl:col-span-7 bg-[#14161E] border border-[#232634] rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between shadow-xl card-interactive relative">
+        {/* Right Column: Cash Flow with SpotlightCard & Rounded Glowing Bars (7 cols) */}
+        <SpotlightCard 
+          spotlightColor="rgba(255, 87, 34, 0.2)" 
+          className="xl:col-span-7 flex flex-col justify-between p-5 sm:p-6"
+        >
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
                 <span className="text-xs text-[#9CA3AF] font-medium">Cash Flow</span>
                 <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
-                  $540,323.45
+                  <CountUp to={540323.45} decimals={2} duration={1.5} />
                 </div>
               </div>
 
@@ -417,14 +444,22 @@ export default function Overview({
               </div>
             </div>
           </div>
-        </div>
+        </SpotlightCard>
 
       </div>
 
       {/* Bottom Section: Recent Activities (Live SQLite Transaction Ledger from image.png) */}
-      <div className="bg-[#14161E] border border-[#232634] rounded-3xl p-5 sm:p-6 text-white shadow-xl card-interactive">
+      <SpotlightCard 
+        spotlightColor="rgba(255, 87, 34, 0.15)" 
+        className="p-5 sm:p-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-          <h2 className="text-base font-bold text-white">Recent Activities</h2>
+          <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <span>Recent Activities</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-[#181A22] border border-[#2B2E3A] text-[#9CA3AF]">
+              Live Ledger
+            </span>
+          </h2>
 
           <div className="flex items-center gap-3">
             {/* Search Input */}
@@ -531,7 +566,7 @@ export default function Overview({
             </tbody>
           </table>
         </div>
-      </div>
+      </SpotlightCard>
 
       {/* Add New Wallet Modal */}
       {showAddWalletModal && (

@@ -14,6 +14,8 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
+import ShinyText from './reactbits/ShinyText';
+import BlurText from './reactbits/BlurText';
 
 export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobileOpen, setIsMobileOpen }) {
   const navItems = [
@@ -156,9 +158,8 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
         {/* Upgrade Pro Card (Exact from image.png!) */}
         <div className="bg-[#14161E] border border-[#232634] rounded-2xl p-4 mt-4 shadow-lg relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5722]/10 rounded-full blur-xl pointer-events-none group-hover:bg-[#FF5722]/20 transition-colors"></div>
-          <div className="flex items-center gap-1.5 mb-1 text-white font-bold text-xs">
-            <span>Upgrade Pro!</span>
-            <span className="text-sm">👑</span>
+          <div className="flex items-center gap-1.5 mb-1 font-bold text-xs">
+            <ShinyText text="Upgrade Pro! 👑" speed={2.5} className="font-bold text-xs" />
           </div>
           <p className="text-[#9CA3AF] text-[11px] leading-relaxed mb-3">
             Higher productivity with better organization
