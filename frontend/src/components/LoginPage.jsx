@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  ShieldCheck, 
   ArrowRight, 
   Lock, 
   Mail, 
   Globe, 
-  CheckCircle2, 
-  TrendingUp,
-  AlertCircle,
-  Loader2
+  AlertCircle, 
+  Loader2 
 } from 'lucide-react';
 import DotGridAnimation from './DotGridAnimation';
 import CustomDropdown from './CustomDropdown';
@@ -24,8 +21,8 @@ export const REGIONS = [
 
 export default function LoginPage({ onLogin, activeRegion = 'IN' }) {
   const [selectedCountry, setSelectedCountry] = useState(activeRegion);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('demo@fintrixity.io');
+  const [password, setPassword] = useState('admin123');
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -81,31 +78,46 @@ export default function LoginPage({ onLogin, activeRegion = 'IN' }) {
           
           <div>
             {/* Top Brand Mark */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#E6F8F6] border border-[#12B8AC]/20 flex items-center justify-center text-[#12B8AC] shadow-sm">
-                  <span className="text-base font-extrabold">✦</span>
-                </div>
-                <div>
-                  <span className="text-xl font-extrabold text-zinc-900 tracking-tight">Fintrixity</span>
-                  <span className="block text-[10px] text-zinc-400 font-semibold tracking-wider uppercase">Financial Intelligence</span>
-                </div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-[#E6F8F6] border border-[#12B8AC]/20 flex items-center justify-center text-[#12B8AC] shadow-sm">
+                <span className="text-base font-extrabold">✦</span>
               </div>
-
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F8F6] border border-[#12B8AC]/20 text-[#0F8C82] text-xs font-semibold">
-                <span className="w-2 h-2 rounded-full bg-[#12B8AC] animate-pulse"></span>
-                <span>Encrypted</span>
+              <div>
+                <span className="text-xl font-extrabold text-zinc-900 tracking-tight">Fintrixity</span>
+                <span className="block text-[10px] text-zinc-400 font-semibold tracking-wider uppercase">Financial Intelligence</span>
               </div>
             </div>
 
             {/* Welcome Heading */}
-            <div className="mb-6">
+            <div className="mb-4">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
                 Welcome back
               </h1>
               <p className="text-xs sm:text-sm text-zinc-500 mt-1 font-medium">
-                Log in to your local-first zero-knowledge financial portfolio.
+                Log in to access your financial portfolio and live accounts.
               </p>
+            </div>
+
+            {/* Sample Credentials for 1-Click Access */}
+            <div className="mb-5 bg-[#F8F9FC] border border-zinc-200/90 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider bg-zinc-900 text-white px-2 py-0.5 rounded-md font-mono">Demo</span>
+                <div className="text-xs">
+                  <span className="font-mono font-bold text-zinc-800">demo@fintrixity.io</span>
+                  <span className="text-zinc-400 mx-1.5">•</span>
+                  <span className="font-mono text-zinc-500">admin123</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('demo@fintrixity.io');
+                  setPassword('admin123');
+                }}
+                className="text-[11px] font-bold text-[#0F8C82] hover:text-teal-700 hover:underline"
+              >
+                Auto-fill
+              </button>
             </div>
 
             {/* Form */}
@@ -247,72 +259,13 @@ export default function LoginPage({ onLogin, activeRegion = 'IN' }) {
             </form>
           </div>
 
-          {/* Privacy Footnote */}
-          <div className="pt-6 border-t border-zinc-100 flex items-center justify-between text-[11px] text-zinc-400">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#12B8AC]" />
-              <span>Zero-knowledge client storage</span>
-            </span>
-            <span className="font-mono">v2.6 {activeRegionObj.code}</span>
-          </div>
-
         </div>
 
         {/* Right Half: Dark Navy Visual Panel (#151F32) with Dot-Grid Animation */}
-        <div className="lg:col-span-6 bg-[#151F32] relative flex flex-col justify-between p-7 sm:p-10 lg:p-12 overflow-hidden select-none">
-          
-          {/* Top-Right Badge: Automatic Inflow */}
-          <div className="flex justify-end z-20">
-            <div className="bg-white/[0.08] backdrop-blur-md border border-white/[0.12] rounded-2xl px-3.5 py-2.5 shadow-xl flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#12B8AC] to-[#35D9C5] text-white flex items-center justify-center font-bold shadow-md">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-[11px] text-zinc-300 font-medium">Automatic Inflow</div>
-                <div className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
-                  <span>+{sampleAmount}</span>
-                  <span className="text-[9px] text-[#35D9C5] bg-[#35D9C5]/15 px-1.5 py-0.5 rounded font-sans font-bold">
-                    Verified
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Center Stage: Dot-Matrix Typography Canvas Animation */}
-          <div className="relative w-full flex-1 flex items-center justify-center my-4 z-10 min-h-[300px]">
+        <div className="lg:col-span-6 bg-[#151F32] relative flex items-center justify-center p-6 sm:p-10 overflow-hidden select-none min-h-[380px]">
+          <div className="relative w-full h-full flex items-center justify-center">
             <DotGridAnimation activeCurrencySymbol={activeRegionObj.symbol} />
           </div>
-
-          {/* Bottom Security Info & Badge */}
-          <div className="relative z-20 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pt-4 border-t border-white/[0.08]">
-            
-            {/* Zero-Knowledge Vault Badge */}
-            <div className="bg-white/[0.08] backdrop-blur-md border border-white/[0.12] rounded-2xl px-3.5 py-2.5 shadow-xl flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-bold shadow-md">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-[11px] text-zinc-300 font-medium">Zero-Knowledge Vault</div>
-                <div className="text-xs font-bold text-[#35D9C5] font-mono flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#35D9C5]" />
-                  <span>256-Bit Local Enclave</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Descriptive Text beneath animation */}
-            <div className="text-right sm:max-w-[210px]">
-              <div className="text-xs font-bold text-white tracking-tight">
-                Institutional Asset Security
-              </div>
-              <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">
-                Client-side encrypted zero-knowledge ledger. Your sovereign credentials never leave this device.
-              </p>
-            </div>
-
-          </div>
-
         </div>
 
       </div>

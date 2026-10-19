@@ -24,63 +24,51 @@ class SimFinEngine:
     ]
 
     MERCHANT_POOLS = {
-        "Housing & Rent": [
-            ("AVALON PROPERTY MGMT ACH", 1800, 2400),
-            ("EQUITY RESIDENTIAL LEASE", 2000, 2600),
-            ("ZELLE PAYMENT TO LANDLORD", 1200, 1900),
-            ("REALTY MGMT CORP DIRECT DR", 1500, 2100)
-        ],
-        "Utilities": [
-            ("CONEDISON ELEC & GAS", 85, 175),
-            ("NATIONAL GRID UTIL", 60, 140),
-            ("VERIZON FIOS INTERNET", 79.99, 89.99),
-            ("CITY WATER & SEWER DEPT", 45, 95)
-        ],
-        "Groceries": [
-            ("TRADER JOE'S #542 NYC", 45, 135),
-            ("WHOLE FOODS MARKET SOHO", 65, 190),
-            ("KROGER FRESH FOODS", 50, 140),
-            ("SAFEWAY STORE 1284", 40, 120),
-            ("ALDI FOOD STORE 994", 30, 85)
-        ],
-        "Debt & Loans": [
-            ("NELNET STUDENT LN ACH", 250, 420),
-            ("CHASE AUTO FINANCE PYMT", 320, 480),
-            ("CITI CARDS ONLINE PYMT", 150, 300),
-            ("DISCOVER E-PAYMENT", 100, 250)
-        ],
-        "Healthcare": [
-            ("CVS PHARMACY #0492", 15, 65),
-            ("WALGREENS STORE 391", 20, 75),
-            ("QUEST DIAGNOSTICS LAB", 45, 150),
-            ("ONE MEDICAL GROUP COPAY", 35, 35)
-        ],
-        "Transportation": [
-            ("MTA SUBWAY VENDING NY", 2.90, 34.00),
-            ("UBER *TRIP 8492 SAN FRANCISCO", 14.50, 42.00),
-            ("LYFT *RIDE MON 4PM", 16.00, 38.00),
-            ("SHELL OIL 574829 QPS", 35.00, 65.00),
-            ("CHEVRON FUEL STATION", 40.00, 70.00)
-        ],
-        "Dining & Takeout": [
+        "Food & Dining": [
+            ("SWIGGY BANGALORE ONLINE", 12.00, 32.00),
+            ("ZOMATO GOURMET DINING", 15.00, 45.00),
             ("TST* SWEETGREEN 4295 NY", 14.50, 22.00),
             ("CHIPOTLE 1928 ONLINE", 12.00, 19.50),
             ("STARBUCKS STORE 11492", 5.50, 9.75),
             ("DOORDASH*SHAKE SHACK", 24.00, 48.00),
-            ("UBER *EATS RESTAURANT", 22.00, 55.00),
-            ("JOE'S PIZZA GREENWICH", 8.00, 28.00)
+            ("JOE'S PIZZA GREENWICH", 8.00, 28.00),
+            ("TRADER JOE'S #542 NYC", 45, 135),
+            ("WHOLE FOODS MARKET SOHO", 65, 190)
         ],
-        "Entertainment": [
-            ("AMC THEATRES 4821", 16.50, 38.00),
-            ("TICKETMASTER CONCERT", 65.00, 180.00),
+        "Gaming": [
             ("STEAM PURCHASE GAMES", 19.99, 69.99),
-            ("BARCADE BROOKLYN TAVERN", 25.00, 75.00)
+            ("PLAYSTATION NETWORK STORE", 29.99, 79.99),
+            ("XBOX LIVE GOLD SUBSCR", 14.99, 59.99),
+            ("NINTENDO ESHOP DIGITAL", 19.99, 59.99),
+            ("EPIC GAMES STORE ONLINE", 14.99, 49.99)
         ],
-        "Shopping & Lifestyle": [
+        "Shopping": [
             ("AMZN Mktp US* 8H2910G", 18.50, 125.00),
+            ("FLIPKART INTERNET ORDER", 22.00, 95.00),
             ("TARGET ST. 1824 NEW YORK", 22.00, 95.00),
             ("UNIQLO SOHO FIFTH AVE", 39.00, 110.00),
             ("SEPHORA USA #492", 35.00, 85.00)
+        ],
+        "Online Payments": [
+            ("RAZORPAY DIGITAL CHECKOUT", 15.00, 85.00),
+            ("PAYPAL TRANSFER DIGITAL", 25.00, 120.00),
+            ("STRIPE CHECKOUT PAYMENT", 20.00, 95.00),
+            ("BILLDESK SERVICE PAYMENT", 18.00, 65.00)
+        ],
+        "Bills & Utilities": [
+            ("CONEDISON ELEC & GAS", 85, 175),
+            ("NATIONAL GRID UTIL", 60, 140),
+            ("VERIZON FIOS INTERNET", 79.99, 89.99),
+            ("AIRTEL BROADBAND FIBER", 30.00, 55.00),
+            ("AVALON PROPERTY MGMT ACH", 1800, 2400)
+        ],
+        "Travel & Transport": [
+            ("UBER *TRIP 8492 SAN FRANCISCO", 14.50, 42.00),
+            ("OLA CABS TRIP BENGALURU", 8.50, 26.00),
+            ("LYFT *RIDE MON 4PM", 16.00, 38.00),
+            ("SHELL OIL 574829 QPS", 35.00, 65.00),
+            ("CHEVRON FUEL STATION", 40.00, 70.00),
+            ("MTA SUBWAY VENDING NY", 2.90, 34.00)
         ],
         "Subscriptions": [
             ("NETFLIX.COM DIGITAL", 19.99, 19.99),
@@ -88,6 +76,24 @@ class SimFinEngine:
             ("APPLE.COM/BILL ICLOUD", 2.99, 9.99),
             ("EQUINOX GYM CLUB CHARGE", 190.00, 240.00),
             ("PLANET FITNESS AUTO-DEBIT", 15.00, 24.99)
+        ],
+        "Education": [
+            ("COURSERA PLUS LEARNING", 39.00, 79.00),
+            ("UDEMY ONLINE COURSES", 12.99, 34.99),
+            ("CAMPUS BOOKSTORE TEXTBOOKS", 45.00, 140.00),
+            ("STANFORD ONLINE CERTIFICATE", 95.00, 250.00)
+        ],
+        "Healthcare": [
+            ("CVS PHARMACY #0492", 15, 65),
+            ("WALGREENS STORE 391", 20, 75),
+            ("QUEST DIAGNOSTICS LAB", 45, 150),
+            ("ONE MEDICAL GROUP COPAY", 35, 35),
+            ("APOLLO PHARMACY DIGITAL", 12.00, 45.00)
+        ],
+        "Other": [
+            ("LOCAL HARDWARE STORE", 14.00, 45.00),
+            ("POSTAL COURIER EXPRESS", 12.00, 35.00),
+            ("ATM SURCHARGE WITHDRAWAL", 3.00, 5.00)
         ]
     }
 
@@ -305,10 +311,11 @@ class SimFinEngine:
             num_txs = random.choices([0, 1, 2, 3], weights=[0.2, 0.45, 0.25, 0.1] if not is_weekend else [0.1, 0.3, 0.4, 0.2])[0]
 
             for _ in range(num_txs):
-                cat = random.choice([
-                    "Groceries", "Dining & Takeout", "Transportation",
-                    "Shopping & Lifestyle", "Entertainment"
-                ])
+                cat = random.choices([
+                    "Food & Dining", "Shopping", "Gaming",
+                    "Travel & Transport", "Subscriptions", "Bills & Utilities",
+                    "Online Payments", "Education", "Healthcare", "Other"
+                ], weights=[0.25, 0.18, 0.12, 0.12, 0.08, 0.08, 0.06, 0.04, 0.04, 0.03])[0]
                 merchant, min_v, max_v = random.choice(cls.MERCHANT_POOLS[cat])
                 
                 # Scale amounts if student

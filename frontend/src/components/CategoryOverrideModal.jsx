@@ -30,16 +30,16 @@ export default function CategoryOverrideModal({ tx, onClose, onSave, activeCurre
           <label className="text-xs text-zinc-600 font-semibold block">Assigned Category:</label>
           <CustomDropdown 
             options={[
-              { id: 'Dining & Takeout', label: 'Dining & Takeout', icon: '☕' },
-              { id: 'Groceries', label: 'Groceries', icon: '🛍️' },
-              { id: 'Housing & Rent', label: 'Housing & Rent', icon: '🏠' },
-              { id: 'Utilities', label: 'Utilities', icon: '💡' },
+              { id: 'Food & Dining', label: 'Food & Dining', icon: '🍽️' },
+              { id: 'Gaming', label: 'Gaming', icon: '🎮' },
+              { id: 'Shopping', label: 'Shopping', icon: '🛍️' },
+              { id: 'Online Payments', label: 'Online Payments', icon: '⚡' },
+              { id: 'Bills & Utilities', label: 'Bills & Utilities', icon: '💡' },
+              { id: 'Travel & Transport', label: 'Travel & Transport', icon: '🚗' },
               { id: 'Subscriptions', label: 'Subscriptions', icon: '📺' },
-              { id: 'Transportation', label: 'Transportation', icon: '🚗' },
-              { id: 'Debt & Loans', label: 'Debt & Loans', icon: '💳' },
+              { id: 'Education', label: 'Education', icon: '🎓' },
               { id: 'Healthcare', label: 'Healthcare', icon: '🏥' },
-              { id: 'Shopping & Lifestyle', label: 'Shopping & Lifestyle', icon: '👗' },
-              { id: 'Entertainment', label: 'Entertainment', icon: '🎮' },
+              { id: 'Other', label: 'Other', icon: '📦' },
               { id: 'Income & Salary', label: 'Income & Salary', icon: '💰' },
             ]}
             value={newCategory}
