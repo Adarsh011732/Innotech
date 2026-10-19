@@ -2,63 +2,53 @@ import React from 'react';
 import { 
   Home, 
   CreditCard, 
+  PieChart, 
   TrendingUp, 
-  Target, 
-  RotateCw, 
-  Sliders, 
   Sparkles, 
-  Bell, 
+  ShieldCheck, 
+  Gift, 
   Plus, 
-  LogOut, 
-  ChevronDown,
-  Gift,
-  ShieldCheck
+  Bell, 
+  LogOut,
+  Sliders,
+  RotateCw
 } from 'lucide-react';
-import { INDIAN_PERSONAS } from '../utils/currency';
+import { REGIONS } from './LoginPage';
 
 export default function Navbar({ 
   activeTab, 
   setActiveTab, 
-  activeCurrency, 
-  onCurrencyChange, 
-  currentPersona, 
-  onPersonaChange,
-  onLogout,
-  onResetData,
-  isRefreshing
+  activeRegion = 'IN',
+  onRegionChange, 
+  onLogout 
 }) {
-  const persona = INDIAN_PERSONAS[currentPersona] || INDIAN_PERSONAS.salaried;
+  const currentRegion = REGIONS.find(r => r.code === activeRegion) || REGIONS[0];
 
   const navItems = [
-    { id: 'dashboard', label: 'Home', icon: Home },
+    { id: 'dashboard', label: 'Portfolio', icon: PieChart },
     { id: 'transactions', label: 'Spending', icon: CreditCard },
-    { id: 'forecast', label: 'Forecast', icon: TrendingUp },
-    { id: 'goals', label: 'Goals', icon: Target },
-    { id: 'recurring', label: 'Bills', icon: RotateCw },
-    { id: 'simulator', label: 'Simulator', icon: Sliders },
-    { id: 'xai', label: 'Insights', icon: Sparkles },
+    { id: 'forecast', label: 'Invest', icon: TrendingUp },
+    { id: 'simulator', label: 'Advice', icon: Sparkles },
+    { id: 'goals', label: 'Goals', icon: ShieldCheck },
+    { id: 'recurring', label: 'Estate planning', icon: RotateCw },
   ];
 
   return (
-    <header className="h-16 bg-white border-b border-black/[0.06] px-4 sm:px-6 lg:px-8 flex items-center justify-between select-none z-30 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+    <header className="h-16 bg-white border-b border-black/[0.05] px-4 sm:px-6 lg:px-8 flex items-center justify-between select-none z-30 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
       
-      {/* Left: Brand Logo with Teal/Mint Badge from image.png */}
+      {/* Left: Mint circular logo from image.png */}
       <div className="flex items-center gap-3">
         <div 
           onClick={() => setActiveTab('dashboard')}
-          className="cursor-pointer flex items-center gap-2.5 group"
+          className="w-9 h-9 rounded-full bg-[#5EEAD4] flex items-center justify-center text-[#065F46] font-extrabold cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-sm"
+          title="Fintrixity Portfolio"
         >
-          <div className="w-8 h-8 rounded-xl bg-[#00E5FF]/15 border border-[#00E5FF]/30 flex items-center justify-center text-teal-600 shadow-sm group-hover:scale-105 transition-transform">
-            <span className="text-teal-600 text-sm font-bold">✦</span>
-          </div>
-          <span className="text-base font-extrabold text-zinc-900 tracking-tight hidden sm:inline">
-            Fintrixity
-          </span>
+          <span className="text-sm">✦</span>
         </div>
       </div>
 
-      {/* Center: Simplified Clean Navigation Links from image.png */}
-      <nav className="hidden md:flex items-center gap-1 sm:gap-2">
+      {/* Center Navigation Tabs from image.png */}
+      <nav className="hidden md:flex items-center gap-1 sm:gap-4 lg:gap-6">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -66,16 +56,16 @@ export default function Navbar({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 btn-interactive ${
+              className={`relative py-5 px-1 text-xs font-semibold flex items-center gap-2 transition-all duration-200 ${
                 isActive 
-                  ? 'text-zinc-900 font-bold bg-[#F4F6FA]' 
-                  : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/70'
+                  ? 'text-zinc-900 font-bold' 
+                  : 'text-zinc-400 hover:text-zinc-700'
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-zinc-900 stroke-[2.4]' : 'text-zinc-400'}`} />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-zinc-900 stroke-[2.2]' : 'text-zinc-400'}`} />
               <span>{item.label}</span>
               {isActive && (
-                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-zinc-900 rounded-full"></span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-zinc-900 rounded-full animate-dropdown"></span>
               )}
             </button>
           );
@@ -85,78 +75,51 @@ export default function Navbar({
       {/* Right Controls from image.png */}
       <div className="flex items-center gap-2 sm:gap-3">
         
-        {/* Currency Switcher: INR (India) vs USD */}
-        <div className="flex items-center bg-[#F4F6FA] p-0.5 rounded-full border border-black/[0.05]">
-          <button
-            onClick={() => onCurrencyChange('INR')}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-              activeCurrency === 'INR'
-                ? 'bg-white text-zinc-900 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-800'
-            }`}
-            title="Switch to Indian Rupee (INR)"
-          >
-            🇮🇳 ₹
-          </button>
-          <button
-            onClick={() => onCurrencyChange('USD')}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-              activeCurrency === 'USD'
-                ? 'bg-white text-zinc-900 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-800'
-            }`}
-            title="Switch to US Dollar (USD)"
-          >
-            🌐 $
-          </button>
+        {/* Country / Currency Flag Indicator */}
+        <div 
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F3F4F7] border border-black/[0.04] text-xs font-semibold text-zinc-700 cursor-pointer hover:bg-zinc-200 transition-colors"
+          onClick={onLogout}
+          title="Click to change region or log out"
+        >
+          <span>{currentRegion.flag}</span>
+          <span className="font-mono text-[11px]">{currentRegion.currency} ({currentRegion.symbol})</span>
         </div>
 
-        {/* Persona Switcher Dropdown */}
-        <div className="hidden lg:flex items-center bg-[#F4F6FA] border border-black/[0.05] rounded-full px-3 py-1 text-xs">
-          <span className="text-[10px] text-zinc-400 mr-1.5 uppercase font-bold tracking-wider">Persona</span>
-          <select 
-            value={currentPersona}
-            onChange={(e) => onPersonaChange(e.target.value)}
-            className="bg-transparent text-zinc-900 font-bold outline-none cursor-pointer text-xs"
-          >
-            <option value="salaried">Rahul (Salaried, BLR)</option>
-            <option value="freelancer">Priya (Freelance, BOM)</option>
-            <option value="student">Aarav (Student, DEL)</option>
-          </select>
-        </div>
-
-        {/* "+ Account" button from image.png */}
+        {/* Black Pill: Get $25 (or ₹2,000) from image.png */}
         <button 
-          onClick={onResetData}
-          disabled={isRefreshing}
-          className="hidden sm:flex items-center gap-1.5 bg-[#F4F6FA] hover:bg-zinc-200/70 border border-black/[0.06] text-zinc-800 text-xs font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 btn-interactive"
-          title="Reset or Sync Bank Feeds"
+          onClick={() => setActiveTab('simulator')}
+          className="hidden sm:flex items-center gap-1.5 bg-[#18191E] hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-full shadow-md hover:scale-105 active:scale-95 transition-all btn-interactive"
+        >
+          <Gift className="w-3.5 h-3.5 text-amber-400" />
+          <span>Get {currentRegion.symbol}{currentRegion.code === 'IN' ? '2,000' : '25'}</span>
+        </button>
+
+        {/* White Pill: + Account from image.png */}
+        <button 
+          onClick={() => setActiveTab('transactions')}
+          className="hidden sm:flex items-center gap-1 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-all btn-interactive"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Account</span>
         </button>
 
-        {/* Notification Bell with Badge */}
+        {/* Circular Notification Bell */}
         <button 
           onClick={() => setActiveTab('recurring')}
-          className="relative w-8 h-8 rounded-full bg-[#F4F6FA] hover:bg-zinc-200/70 flex items-center justify-center text-zinc-600 hover:text-zinc-900 transition-all btn-interactive"
-          title="Notifications & Upcoming Bills"
+          className="w-9 h-9 rounded-full bg-white hover:bg-zinc-50 border border-black/[0.08] flex items-center justify-center text-zinc-600 hover:text-zinc-900 shadow-sm hover:scale-105 active:scale-95 transition-all btn-interactive"
+          title="Notifications & Holding Updates"
         >
           <Bell className="w-3.5 h-3.5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
         </button>
 
-        {/* User Profile Avatar with Online Ring & Signout */}
+        {/* User Profile Avatar with Online Dot from image.png */}
         <div 
           onClick={onLogout}
-          className="flex items-center gap-2 pl-1 cursor-pointer group"
-          title="Click to Switch Account or Sign Out"
+          className="relative w-9 h-9 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white shadow-sm flex items-center justify-center text-white font-bold text-xs cursor-pointer hover:scale-105 active:scale-95 transition-all"
+          title="Click to Switch User or Sign Out"
         >
-          <div className="relative w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 flex items-center justify-center font-bold text-xs text-white shadow-sm group-hover:scale-105 transition-transform">
-            <span>{persona.name.charAt(0)}</span>
-            <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
-          </div>
-          <LogOut className="w-3.5 h-3.5 text-zinc-400 group-hover:text-red-500 transition-colors hidden sm:inline" />
+          <span>{currentRegion.code === 'IN' ? 'RS' : 'JD'}</span>
+          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
         </div>
 
       </div>

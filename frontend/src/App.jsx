@@ -8,14 +8,13 @@ import SimulatorView from './components/SimulatorView';
 import XaiView from './components/XaiView';
 import RecurringView from './components/RecurringView';
 import CategoryOverrideModal from './components/CategoryOverrideModal';
-import LoginPage from './components/LoginPage';
-import { INDIAN_PERSONAS } from './utils/currency';
+import LoginPage, { REGIONS } from './components/LoginPage';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeCurrency, setActiveCurrency] = useState('INR'); // Default Indian Rupee
-  const [currentPersona, setCurrentPersona] = useState('salaried'); // Default Rahul Sharma
+  const [activeRegion, setActiveRegion] = useState('IN'); // Default India
+  const [activeCurrency, setActiveCurrency] = useState('INR'); // Default INR
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -109,28 +108,6 @@ export default function App() {
     loadAllData();
   }, []);
 
-  // Persona Switch Handler
-  const handlePersonaChange = async (newPersona) => {
-    setCurrentPersona(newPersona);
-    const personaObj = INDIAN_PERSONAS[newPersona] || INDIAN_PERSONAS.salaried;
-    showToast(`Loading profile for ${personaObj.name} (${personaObj.location})...`);
-    try {
-      const res = await fetch(`/api/data/seed/${newPersona}`, { method: 'POST' });
-      if (res.ok) {
-        await loadAllData();
-        showToast(`Active Profile: ${personaObj.name}`, 'success');
-      }
-    } catch (e) {
-      showToast('Error switching profile', 'danger');
-    }
-  };
-
-  // Reset Data Handler
-  const handleResetData = async () => {
-    showToast('Synchronizing financial feeds to baseline...');
-    await handlePersonaChange(currentPersona);
-  };
-
   // Horizon Change Handler
   const handleHorizonChange = async (days) => {
     setCurrentHorizon(days);
@@ -163,46 +140,40 @@ export default function App() {
     showToast(`Strategy "${profileTitle}" activated!`, 'success');
   };
 
-  // Login handler from LoginPage
-  const handleLogin = (personaKey, currency) => {
-    setCurrentPersona(personaKey);
-    setActiveCurrency(currency);
+  // Login handler from LoginPage with Region & Currency
+  const handleLogin = (regionCode, currencyCode) => {
+    setActiveRegion(regionCode);
+    setActiveCurrency(currencyCode);
     setIsLoggedIn(true);
-    const p = INDIAN_PERSONAS[personaKey] || INDIAN_PERSONAS.salaried;
-    showToast(`Welcome back, ${p.name}!`, 'success');
+    const reg = REGIONS.find(r => r.code === regionCode) || REGIONS[0];
+    showToast(`Logged in successfully. Region: ${reg.name} (${reg.currency})`, 'success');
   };
 
   // Logout handler
   const handleLogout = () => {
     setIsLoggedIn(false);
-    showToast('Signed out of financial cockpit.');
+    showToast('Signed out. Please select your region to log in.');
   };
 
-  // If user is not logged in, show split-screen LoginPage with animated Piggy Bank
+  // If user is not logged in, show split-screen LoginPage with 3D Vault
   if (!isLoggedIn) {
     return (
       <LoginPage 
         onLogin={handleLogin}
-        activeCurrency={activeCurrency}
-        onCurrencyChange={setActiveCurrency}
+        activeRegion={activeRegion}
       />
     );
   }
 
   return (
-    <div className="flex flex-col w-screen h-screen bg-[#F4F6FA] text-zinc-900 overflow-hidden font-sans">
+    <div className="flex flex-col w-screen h-screen bg-[#F3F4F7] text-zinc-900 overflow-hidden font-sans">
       
       {/* Top Horizontal Navbar from image.png */}
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        activeCurrency={activeCurrency}
-        onCurrencyChange={setActiveCurrency}
-        currentPersona={currentPersona}
-        onPersonaChange={handlePersonaChange}
+        activeRegion={activeRegion}
         onLogout={handleLogout}
-        onResetData={handleResetData}
-        isRefreshing={isRefreshing}
       />
 
       {/* Main Viewport Container */}
@@ -210,14 +181,8 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <Overview 
             accountsSummary={accountsSummary}
-            stressData={stressData}
-            forecastData={forecastData}
-            transactions={transactions}
-            onResetData={handleResetData}
-            onOpenOverrideModal={(tx) => setSelectedTxForOverride(tx)}
             setActiveTab={setActiveTab}
-            activeCurrency={activeCurrency}
-            currentPersona={currentPersona}
+            activeRegion={activeRegion}
           />
         )}
 
@@ -276,7 +241,7 @@ export default function App() {
 
       {/* Toast Notification Pill */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-zinc-900 text-white px-5 py-3 rounded-full shadow-2xl z-50 flex items-center gap-2.5 animate-dropdown text-xs font-semibold">
+        <div className="fixed bottom-6 right-6 bg-[#18191E] text-white px-5 py-3 rounded-full shadow-2xl z-50 flex items-center gap-2.5 animate-dropdown text-xs font-semibold">
           <span className="w-2 h-2 rounded-full bg-teal-400"></span>
           <span>{toastMessage.text}</span>
         </div>
