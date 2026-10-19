@@ -79,45 +79,36 @@ export default function LoginPage({ onLogin, activeRegion = 'IN' }) {
           <div>
             {/* Top Brand Mark */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-2xl bg-[#E6F8F6] border border-[#12B8AC]/20 flex items-center justify-center text-[#12B8AC] shadow-sm">
-                <span className="text-base font-extrabold">✦</span>
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] p-2 flex items-center justify-center shadow-md shadow-teal-900/10 border border-slate-700/30">
+                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+                  <path d="M12 2L3 7L12 12L21 7L12 2Z" fill="url(#login-brand-grad)" />
+                  <path d="M3 12L12 17L21 12" stroke="#2DD4BF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M3 17L12 22L21 17" stroke="#38BDF8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <defs>
+                    <linearGradient id="login-brand-grad" x1="3" y1="2" x2="21" y2="12" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#2DD4BF" />
+                      <stop offset="1" stopColor="#0EA5E9" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
               <div>
-                <span className="text-xl font-extrabold text-zinc-900 tracking-tight">Fintrixity</span>
+                <span className="text-xl font-extrabold text-zinc-900 tracking-tight flex items-center gap-1.5">
+                  Fintrixity
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+                </span>
                 <span className="block text-[10px] text-zinc-400 font-semibold tracking-wider uppercase">Financial Intelligence</span>
               </div>
             </div>
 
             {/* Welcome Heading */}
-            <div className="mb-4">
+            <div className="mb-6">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
                 Welcome back
               </h1>
               <p className="text-xs sm:text-sm text-zinc-500 mt-1 font-medium">
                 Log in to access your financial portfolio and live accounts.
               </p>
-            </div>
-
-            {/* Sample Credentials for 1-Click Access */}
-            <div className="mb-5 bg-[#F8F9FC] border border-zinc-200/90 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider bg-zinc-900 text-white px-2 py-0.5 rounded-md font-mono">Demo</span>
-                <div className="text-xs">
-                  <span className="font-mono font-bold text-zinc-800">demo@fintrixity.io</span>
-                  <span className="text-zinc-400 mx-1.5">•</span>
-                  <span className="font-mono text-zinc-500">admin123</span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('demo@fintrixity.io');
-                  setPassword('admin123');
-                }}
-                className="text-[11px] font-bold text-[#0F8C82] hover:text-teal-700 hover:underline"
-              >
-                Auto-fill
-              </button>
             </div>
 
             {/* Form */}
