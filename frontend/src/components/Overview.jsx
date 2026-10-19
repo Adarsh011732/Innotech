@@ -99,10 +99,13 @@ export default function Overview({
   const activeBar = barData[hoveredBarIndex] || barData[2];
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#08090C]">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#08090C] relative">
       
+      {/* Upper Half Ambient Orange Glow (Confined Strictly to Top Section) */}
+      <div className="pointer-events-none absolute top-0 left-1/4 right-1/4 h-[340px] bg-[#FF5722]/12 blur-[130px] rounded-full -translate-y-1/3"></div>
+
       {/* Title Row with React Bits BlurText */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <BlurText 
@@ -449,10 +452,7 @@ export default function Overview({
       </div>
 
       {/* Bottom Section: Recent Activities (Live SQLite Transaction Ledger from image.png) */}
-      <SpotlightCard 
-        spotlightColor="rgba(255, 87, 34, 0.15)" 
-        className="p-5 sm:p-6"
-      >
+      <div className="bg-[#111217] border border-[#20222B] rounded-3xl p-5 sm:p-6 text-white shadow-xl relative card-interactive">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             <span>Recent Activities</span>
@@ -566,7 +566,7 @@ export default function Overview({
             </tbody>
           </table>
         </div>
-      </SpotlightCard>
+      </div>
 
       {/* Add New Wallet Modal */}
       {showAddWalletModal && (
