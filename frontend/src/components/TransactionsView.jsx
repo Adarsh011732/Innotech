@@ -641,14 +641,11 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
       {/* Title & Filter Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight flex items-center gap-2.5">
-            <span>Spending & Transactions</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-zinc-900 text-white font-mono font-bold">
-              {filteredAllTransactions.length} records
-            </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+            Spending & Expenses
           </h1>
           <p className="text-xs text-zinc-500 mt-1 font-medium">
-            Live synchronized UPI, NetBanking, and credit feed with 1-click machine-learning category overrides.
+            Categorized breakdown across all connected cards, UPI IDs, and accounts.
           </p>
         </div>
 
@@ -657,18 +654,23 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
             <Search className="w-3.5 h-3.5 mr-2 text-zinc-400" />
             <input 
               type="text" 
-              placeholder="Search merchants, UPI IDs..." 
+              placeholder="Search merchants, categories..." 
               value={globalSearch}
               onChange={(e) => setGlobalSearch(e.target.value)}
-              className="bg-transparent text-zinc-900 outline-none w-44 placeholder-zinc-400 text-xs"
+              className="bg-transparent text-zinc-900 outline-none w-48 placeholder-zinc-400 text-xs"
             />
           </div>
 
-          {/* Custom Styled Glass Dropdown replacing dull OS select */}
+          {/* Category Quick Jump Dropdown */}
           <CustomDropdown 
             options={categoryFilterDropdownOptions}
             value={globalCategory}
-            onChange={(val) => setGlobalCategory(val)}
+            onChange={(val) => {
+              setGlobalCategory(val);
+              if (val) {
+                setSelectedCategoryId(val);
+              }
+            }}
             placeholder="All Categories"
             icon={Filter}
           />
@@ -682,7 +684,7 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
       />
 
       {/* ========================================================================= */}
-      {/* 1. EXPENSE BREAKDOWN SECTION: Interactive 10 Canonical Category Cards     */}
+      {/* EXPENSE BREAKDOWN SECTION: Interactive 10 Canonical Category Cards        */}
       {/* ========================================================================= */}
       <div className="space-y-4">
         
@@ -698,7 +700,7 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
               </span>
             </div>
             <p className="text-xs text-zinc-500 mt-0.5">
-              Click any category card to inspect filtered merchant histories and adjust classifications.
+              Click any category card to inspect filtered transactions and adjust classifications.
             </p>
           </div>
 
@@ -729,7 +731,7 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
-              Total Expenses ({dateRange === '30D' ? '30 Days' : dateRange === '90D' ? '90 Days' : dateRange === 'YTD' ? 'Year to Date' : 'All Time'})
+              Total Outflow ({dateRange === '30D' ? '30 Days' : dateRange === '90D' ? '90 Days' : dateRange === 'YTD' ? 'Year to Date' : 'All Time'})
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold font-mono text-zinc-900 tracking-tight mt-0.5">
               <CountUp 
@@ -740,166 +742,75 @@ export default function TransactionsView({ transactions = [], onOpenOverrideModa
               />
             </div>
           </div>
-          <div className="text-xs text-zinc-500 font-medium sm:text-right max-w-xs">
-            Derived directly from <strong className="text-zinc-800 font-mono">{expenseTransactions.length}</strong> qualifying expense transactions. Credits and payroll deposits are automatically excluded.
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-zinc-600 bg-zinc-100/90 px-3.5 py-1.5 rounded-full border border-zinc-200/60 font-mono">
+              {expenseTransactions.length} qualifying expenses
+            </span>
           </div>
         </div>
 
         {/* 10 Category Cards Responsive Grid */}
         <AnimatedContent distance={15} duration={0.35} stagger={0.04}>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-            {categoryBreakdown.map((cat) => {
-              const IconComp = cat.icon;
-              return (
-                <div
-                  key={cat.id}
-                  onClick={() => setSelectedCategoryId(cat.id)}
-                  className="bg-white rounded-[22px] p-4 border border-black/[0.05] shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-200 card-interactive cursor-pointer group flex flex-col justify-between"
-                >
-                  <div>
-                    {/* Top Row: Icon + Percentage Badge */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className={`w-9 h-9 rounded-xl ${cat.bg} ${cat.text} flex items-center justify-center shadow-sm border ${cat.border} group-hover:scale-105 transition-transform`}>
-                        <IconComp className="w-4 h-4" />
+            {categoryBreakdown
+              .filter(cat => !globalSearch || cat.label.toLowerCase().includes(globalSearch.toLowerCase()))
+              .map((cat) => {
+                const IconComp = cat.icon;
+                return (
+                  <div
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    className="bg-white rounded-[22px] p-4 border border-black/[0.05] shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-200 card-interactive cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Top Row: Icon + Percentage Badge */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className={`w-9 h-9 rounded-xl ${cat.bg} ${cat.text} flex items-center justify-center shadow-sm border ${cat.border} group-hover:scale-105 transition-transform`}>
+                          <IconComp className="w-4 h-4" />
+                        </div>
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${cat.bg} ${cat.text}`}>
+                          {cat.percentage.toFixed(1)}%
+                        </span>
                       </div>
-                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${cat.bg} ${cat.text}`}>
-                        {cat.percentage.toFixed(1)}%
-                      </span>
+
+                      {/* Category Name */}
+                      <h3 className="text-xs font-bold text-zinc-800 group-hover:text-teal-700 transition-colors tracking-tight line-clamp-1">
+                        {cat.label}
+                      </h3>
+
+                      {/* Total Amount */}
+                      <div className="text-base font-extrabold font-mono text-zinc-900 mt-1 tracking-tight">
+                        {formatMoney(cat.total, activeCurrency, true)}
+                      </div>
                     </div>
 
-                    {/* Category Name */}
-                    <h3 className="text-xs font-bold text-zinc-800 group-hover:text-teal-700 transition-colors tracking-tight line-clamp-1">
-                      {cat.label}
-                    </h3>
+                    {/* Bottom: Transaction Count & Progress Bar */}
+                    <div className="mt-4 pt-2.5 border-t border-zinc-100">
+                      <div className="flex items-center justify-between text-[10px] text-zinc-400 font-medium mb-1.5">
+                        <span>{cat.count} txs</span>
+                        <span className="flex items-center text-zinc-500 font-semibold group-hover:text-zinc-800 transition-colors">
+                          <span>Details</span>
+                          <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </span>
+                      </div>
 
-                    {/* Total Amount */}
-                    <div className="text-base font-extrabold font-mono text-zinc-900 mt-1 tracking-tight">
-                      {formatMoney(cat.total, activeCurrency, true)}
+                      <div className="w-full bg-zinc-100 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${cat.barClass} rounded-full transition-all duration-500`}
+                          style={{ width: `${Math.min(100, Math.max(cat.total > 0 ? 3 : 0, cat.percentage))}%` }}
+                        />
+                      </div>
                     </div>
+
                   </div>
-
-                  {/* Bottom: Transaction Count & Progress Bar */}
-                  <div className="mt-4 pt-2.5 border-t border-zinc-100">
-                    <div className="flex items-center justify-between text-[10px] text-zinc-400 font-medium mb-1.5">
-                      <span>{cat.count} txs</span>
-                      <span className="flex items-center text-zinc-500 font-semibold group-hover:text-zinc-800 transition-colors">
-                        <span>Details</span>
-                        <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                      </span>
-                    </div>
-
-                    <div className="w-full bg-zinc-100 h-1.5 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full ${cat.barClass} rounded-full transition-all duration-500`}
-                        style={{ width: `${Math.min(100, Math.max(cat.total > 0 ? 3 : 0, cat.percentage))}%` }}
-                      />
-                    </div>
-                  </div>
-
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </AnimatedContent>
 
       </div>
 
-      {/* ========================================================================= */}
-      {/* 2. INSTITUTIONAL TRANSACTION LEDGER TABLE (All Transactions)             */}
-      {/* ========================================================================= */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-base font-bold text-zinc-900 tracking-tight">
-            Complete Synchronized Ledger
-          </h2>
-          <span className="text-xs text-zinc-400">
-            Showing {filteredAllTransactions.length} of {transactions.length} records
-          </span>
-        </div>
-
-        <div className="bg-white border border-zinc-200/90 rounded-2xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-zinc-200/80 text-zinc-500 bg-[#FAFAFC] uppercase text-[11px] tracking-wider">
-                  <th className="py-3.5 px-6 font-semibold">Transaction / Merchant</th>
-                  <th className="py-3.5 px-6 font-semibold">Category</th>
-                  <th className="py-3.5 px-6 font-semibold">Date</th>
-                  <th className="py-3.5 px-6 font-semibold">Payment Mode</th>
-                  <th className="py-3.5 px-6 font-semibold text-right">Amount</th>
-                  <th className="py-3.5 px-6 font-semibold text-center">ML Override</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 text-zinc-800">
-                {filteredAllTransactions.map((tx, idx) => {
-                  const isOutflow = tx.tx_type === 'debit' || Number(tx.amount) < 0;
-                  const canonicalCat = getCanonicalCategory(tx);
-                  const matchedCat = EXPENSE_CATEGORIES.find(c => c.id === canonicalCat);
-
-                  return (
-                    <tr key={tx.id || idx} className="hover:bg-zinc-50/80 transition-colors group">
-                      <td className="py-3.5 px-6 font-bold text-zinc-900">
-                        <div className="flex items-center gap-3">
-                          {getCategoryIconElement(canonicalCat)}
-                          <div>
-                            <span className="block font-semibold group-hover:text-teal-700 transition-colors">
-                              {tx.description}
-                            </span>
-                            <span className="text-[10px] text-zinc-400 font-mono font-normal">
-                              REF# {String(tx.id || idx + 100).padStart(6, '0')}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-6">
-                        <button
-                          onClick={() => {
-                            if (canonicalCat !== 'Income & Salary') {
-                              setSelectedCategoryId(canonicalCat);
-                            }
-                          }}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all hover:scale-105 ${
-                            matchedCat ? `${matchedCat.bg} ${matchedCat.text} ${matchedCat.border}` : 'bg-zinc-100 text-zinc-700 border-zinc-200/50'
-                          }`}
-                          title={`Click to filter by ${canonicalCat}`}
-                        >
-                          {canonicalCat}
-                        </button>
-                      </td>
-
-                      <td className="py-3.5 px-6 text-zinc-500 font-medium">
-                        {tx.date ? new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'}
-                      </td>
-
-                      <td className="py-3.5 px-6">
-                        <span className="text-[10px] font-mono text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-md font-semibold">
-                          {idx % 3 === 0 ? 'UPI' : idx % 3 === 1 ? 'NetBanking' : 'Debit Card'}
-                        </span>
-                      </td>
-
-                      <td className={`py-3.5 px-6 font-mono font-bold text-right text-sm tabular-nums ${isOutflow ? 'text-zinc-900' : 'text-emerald-700'}`}>
-                        {isOutflow ? '-' : '+'}{formatMoney(Math.abs(tx.amount), activeCurrency, true)}
-                      </td>
-
-                      <td className="py-3.5 px-6 text-center">
-                        <button 
-                          onClick={() => onOpenOverrideModal && onOpenOverrideModal(tx)}
-                          className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-zinc-900 transition-colors btn-interactive"
-                          title="Override ML Classification"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 }
+

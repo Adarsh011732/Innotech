@@ -190,32 +190,20 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#E5E8EE] overflow-x-hidden flex items-center justify-center p-2 sm:p-4 lg:p-6 font-sans">
+    <div className="min-h-screen w-full bg-[#F3F4F7] flex flex-col font-sans overflow-x-hidden selection:bg-teal-500/20">
       
-      {/* Ambient Blurred Extra Portion Around Webapp */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 -left-32 w-[34rem] h-[34rem] rounded-full bg-teal-300/30 blur-[130px]" />
-        <div className="absolute top-1/3 -right-32 w-[38rem] h-[38rem] rounded-full bg-blue-400/20 blur-[140px]" />
-        <div className="absolute -bottom-32 left-1/4 w-[36rem] h-[36rem] rounded-full bg-indigo-300/25 blur-[130px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/20 backdrop-blur-2xl pointer-events-none" />
-      </div>
+      {/* Top Horizontal Navbar */}
+      <Navbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        activePersona={activePersona}
+        onPersonaChange={handlePersonaChange}
+        onLogout={handleLogout}
+      />
 
-      {/* Floating Elevated Canvas / Tablet Container with Margins & Z-Index */}
-      <div className="relative z-20 w-full max-w-[1600px] h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] bg-[#F3F4F7] rounded-[28px] sm:rounded-[36px] border border-white/90 shadow-[0_30px_90px_-15px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden backdrop-blur-xl">
-        
-        {/* Top Horizontal Navbar */}
-        <Navbar 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          activeRegion={activeRegion}
-          onRegionChange={handleRegionChange}
-          activePersona={activePersona}
-          onPersonaChange={handlePersonaChange}
-          onLogout={handleLogout}
-        />
-
-        {/* Main Viewport Container */}
-        <main className="flex-1 overflow-hidden flex flex-col">
+      {/* Main Viewport Container */}
+      <main className="flex-1 w-full flex flex-col">
+        <div className="w-full max-w-[1600px] mx-auto flex-1 flex flex-col">
           {activeTab === 'dashboard' && (
             <Overview 
               accountsSummary={accountsSummary}
@@ -265,8 +253,9 @@ export default function App() {
           {activeTab === 'xai' && (
             <XaiView />
           )}
-        </main>
-      </div>
+        </div>
+      </main>
+
 
       {/* 1-Click Category Override Modal */}
       {selectedTxForOverride && (

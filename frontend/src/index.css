@@ -325,8 +325,32 @@ body {
   84% { transform: scale(0.95); opacity: 0.2; }
 }
 
-.animate-shadow-scale {
-  animation: shadowScale 2.4s infinite ease-in-out;
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 28s linear infinite;
+}
+
+@keyframes flowerBreathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.25));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 24px rgba(139, 92, 246, 0.45));
+  }
+}
+
+.animate-flower-breathe {
+  animation: flowerBreathe 4s ease-in-out infinite;
 }
 
 

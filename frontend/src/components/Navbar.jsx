@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-  Home, 
   CreditCard, 
   PieChart, 
   TrendingUp, 
@@ -9,26 +8,20 @@ import {
   Gift, 
   Plus, 
   Bell, 
-  LogOut,
-  Sliders,
   RotateCw,
-  User,
-  Globe
+  Menu,
+  X
 } from 'lucide-react';
-import { REGIONS } from './LoginPage';
 import CustomDropdown from './CustomDropdown';
-import { INDIAN_PERSONAS } from '../utils/currency';
 
 export default function Navbar({ 
   activeTab, 
   setActiveTab, 
-  activeRegion = 'IN',
-  onRegionChange, 
   activePersona = 'salaried',
   onPersonaChange,
   onLogout 
 }) {
-  const currentRegion = REGIONS.find(r => r.code === activeRegion) || REGIONS[0];
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { id: 'dashboard', label: 'Portfolio', icon: PieChart },
@@ -36,16 +29,8 @@ export default function Navbar({
     { id: 'forecast', label: 'Invest', icon: TrendingUp },
     { id: 'simulator', label: 'Advice', icon: Sparkles },
     { id: 'goals', label: 'Goals', icon: ShieldCheck },
-    { id: 'recurring', label: 'Estate planning', icon: RotateCw },
+    { id: 'recurring', label: 'Estate', icon: RotateCw },
   ];
-
-  const regionOptions = REGIONS.map(r => ({
-    id: r.code,
-    label: r.name,
-    sublabel: `${r.currency} (${r.symbol})`,
-    icon: r.flag,
-    badge: r.symbol
-  }));
 
   const personaOptions = [
     { id: 'salaried', label: 'Rahul Sharma', sublabel: 'Salaried Tech Lead (BLR)', icon: '👨‍💼', badge: 'BLR' },
@@ -54,106 +39,156 @@ export default function Navbar({
   ];
 
   return (
-    <header className="h-16 bg-white border-b border-black/[0.05] px-4 sm:px-6 lg:px-8 flex items-center justify-between select-none z-30 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-      
-      {/* Left: Mint circular logo from image.png */}
-      <div className="flex items-center gap-3">
+    <>
+      <header className="h-16 bg-white border-b border-black/[0.06] px-3 sm:px-6 lg:px-8 flex items-center justify-between select-none z-30 shadow-[0_2px_12px_rgba(0,0,0,0.02)] sticky top-0">
+        
+        {/* Left: Modern Sleek Geometric Logo & Brandmark */}
         <div 
           onClick={() => setActiveTab('dashboard')}
-          className="w-9 h-9 rounded-full bg-[#5EEAD4] flex items-center justify-center text-[#065F46] font-extrabold cursor-pointer hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-sm"
-          title="Fintrixity Portfolio"
+          className="flex items-center gap-2.5 cursor-pointer group select-none flex-shrink-0"
+          title="Fintrixity Home"
         >
-          <span className="text-sm">✦</span>
-        </div>
-      </div>
-
-      {/* Center Navigation Tabs from image.png */}
-      <nav className="hidden md:flex items-center gap-1 sm:gap-4 lg:gap-6">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`relative py-5 px-1 text-xs font-semibold flex items-center gap-2 transition-colors duration-150 ${
-                isActive 
-                  ? 'text-zinc-900 font-bold' 
-                  : 'text-zinc-400 hover:text-zinc-700'
-              }`}
-            >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-zinc-900 stroke-[2.2]' : 'text-zinc-400'}`} />
-              <span>{item.label}</span>
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-zinc-900 rounded-full animate-dropdown"></span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Right Controls from image.png */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        
-        {/* Persona Custom Glass Dropdown */}
-        <div className="hidden lg:block">
-          <CustomDropdown 
-            options={personaOptions}
-            value={activePersona}
-            onChange={(val) => onPersonaChange && onPersonaChange(val)}
-            placeholder="Select Persona"
-            align="right"
-          />
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] p-2 flex items-center justify-center shadow-md shadow-teal-900/10 border border-slate-700/30 group-hover:scale-105 transition-all">
+            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+              <path d="M12 2L3 7L12 12L21 7L12 2Z" fill="url(#brand-grad-1)" />
+              <path d="M3 12L12 17L21 12" stroke="#2DD4BF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 17L12 22L21 17" stroke="#38BDF8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              <defs>
+                <linearGradient id="brand-grad-1" x1="3" y1="2" x2="21" y2="12" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#2DD4BF" />
+                  <stop offset="1" stopColor="#0EA5E9" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-black tracking-tight text-slate-900 flex items-center gap-1.5 leading-none">
+              Fintrixity
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+            </span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight mt-0.5">
+              Intelligence
+            </span>
+          </div>
         </div>
 
-        {/* Region & Currency Custom Glass Dropdown */}
-        <CustomDropdown 
-          options={regionOptions}
-          value={activeRegion}
-          onChange={(val) => onRegionChange && onRegionChange(val)}
-          placeholder="Region"
-          align="right"
-        />
+        {/* Center Navigation Tabs (Desktop & Tablet) */}
+        <nav className="hidden md:flex items-center gap-1 sm:gap-2 lg:gap-5 whitespace-nowrap overflow-x-auto no-scrollbar">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`relative py-5 px-1.5 text-xs font-semibold flex items-center gap-1.5 lg:gap-2 transition-colors duration-150 whitespace-nowrap flex-shrink-0 ${
+                  isActive 
+                    ? 'text-zinc-900 font-bold' 
+                    : 'text-zinc-400 hover:text-zinc-700'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-zinc-900 stroke-[2.2]' : 'text-zinc-400'}`} />
+                <span>{item.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-zinc-900 rounded-full animate-dropdown"></span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-        {/* Black Pill: Get $25 (or ₹2,000) from image.png */}
-        <button 
-          onClick={() => setActiveTab('simulator')}
-          className="hidden sm:flex items-center gap-1.5 bg-[#18191E] hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-full shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive"
-        >
-          <Gift className="w-3.5 h-3.5 text-amber-400" />
-          <span>Get {currentRegion.symbol}{currentRegion.code === 'IN' ? '2,000' : '25'}</span>
-        </button>
+        {/* Right Controls */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          
+          {/* Persona Custom Glass Dropdown */}
+          <div className="hidden xl:block">
+            <CustomDropdown 
+              options={personaOptions}
+              value={activePersona}
+              onChange={(val) => onPersonaChange && onPersonaChange(val)}
+              placeholder="Persona"
+              align="right"
+            />
+          </div>
 
-        {/* White Pill: + Account from image.png */}
-        <button 
-          onClick={() => setActiveTab('transactions')}
-          className="hidden sm:flex items-center gap-1 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Account</span>
-        </button>
+          {/* Reward Pill: Get ₹2,000 */}
+          <button 
+            onClick={() => setActiveTab('simulator')}
+            className="hidden lg:flex items-center gap-1.5 bg-[#18191E] hover:bg-black text-white text-xs font-bold px-3.5 py-2 rounded-full shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive whitespace-nowrap"
+          >
+            <Gift className="w-3.5 h-3.5 text-amber-400" />
+            <span>Get ₹2,000</span>
+          </button>
 
-        {/* Circular Notification Bell */}
-        <button 
-          onClick={() => setActiveTab('recurring')}
-          className="w-9 h-9 rounded-full bg-white hover:bg-zinc-50 border border-black/[0.08] flex items-center justify-center text-zinc-600 hover:text-zinc-900 shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive"
-          title="Notifications & Holding Updates"
-        >
-          <Bell className="w-3.5 h-3.5" />
-        </button>
+          {/* + Account Pill */}
+          <button 
+            onClick={() => setActiveTab('transactions')}
+            className="hidden sm:flex items-center gap-1 bg-white hover:bg-zinc-50 border border-black/[0.08] text-zinc-800 text-xs font-bold px-3.5 py-2 rounded-full shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive whitespace-nowrap"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Account</span>
+          </button>
 
-        {/* User Profile Avatar with Online Dot from image.png */}
-        <div 
-          onClick={onLogout}
-          className="relative w-9 h-9 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white shadow-sm flex items-center justify-center text-white font-bold text-xs cursor-pointer hover:-translate-y-0.5 active:translate-y-0 transition-all"
-          title="Click to Sign Out"
-        >
-          <span>{activePersona === 'salaried' ? 'RS' : activePersona === 'freelancer' ? 'PP' : 'AM'}</span>
-          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+          {/* Circular Notification Bell */}
+          <button 
+            onClick={() => setActiveTab('recurring')}
+            className="w-9 h-9 rounded-full bg-white hover:bg-zinc-50 border border-black/[0.08] flex items-center justify-center text-zinc-600 hover:text-zinc-900 shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all btn-interactive"
+            title="Notifications & Alerts"
+          >
+            <Bell className="w-3.5 h-3.5" />
+          </button>
+
+          {/* User Profile Avatar with Online Dot */}
+          <div 
+            onClick={onLogout}
+            className="relative w-9 h-9 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white shadow-sm flex items-center justify-center text-white font-bold text-xs cursor-pointer hover:-translate-y-0.5 active:translate-y-0 transition-all"
+            title="Click to Sign Out"
+          >
+            <span>{activePersona === 'salaried' ? 'RS' : activePersona === 'freelancer' ? 'PP' : 'AM'}</span>
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+          </div>
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden w-9 h-9 rounded-full bg-white hover:bg-zinc-50 border border-black/[0.08] flex items-center justify-center text-zinc-700 shadow-sm"
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+
         </div>
 
-      </div>
+      </header>
 
-    </header>
+      {/* Mobile Drawer / Dropdown Menu for Small Screens */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-zinc-200 px-4 py-3 shadow-lg z-30 animate-dropdown">
+          <div className="grid grid-cols-2 gap-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex items-center gap-2.5 p-2.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive 
+                      ? 'bg-zinc-900 text-white shadow-sm' 
+                      : 'bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-zinc-500'}`} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

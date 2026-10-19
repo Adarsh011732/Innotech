@@ -9,7 +9,13 @@ import {
   Sparkles,
   Layers,
   Circle,
-  MoreHorizontal
+  MoreHorizontal,
+  Landmark,
+  ShieldCheck,
+  Wallet,
+  Send,
+  Zap,
+  Bot
 } from 'lucide-react';
 import CountUp from './reactbits/CountUp';
 import AnimatedContent from './reactbits/AnimatedContent';
@@ -24,6 +30,8 @@ export default function Overview({
   const [activeTimeframe, setActiveTimeframe] = useState('1M');
   const [hoveredBarIndex, setHoveredBarIndex] = useState(3);
   const [showAiModal, setShowAiModal] = useState(false);
+  const [aiCustomQuery, setAiCustomQuery] = useState('');
+  const [selectedAiPrompt, setSelectedAiPrompt] = useState('performance');
 
   const region = REGIONS.find(r => r.code === activeRegion) || REGIONS[0];
   const symbol = region.symbol;
@@ -115,8 +123,8 @@ export default function Overview({
           <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
-                  ●
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center text-teal-400 shadow-sm border border-zinc-700/40">
+                  <Landmark className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-xs font-bold text-zinc-700">Coinbase</span>
               </div>
@@ -157,8 +165,8 @@ export default function Overview({
           <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-teal-400 shadow-sm">
-                  📍
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-teal-900 to-zinc-900 flex items-center justify-center text-teal-400 shadow-sm border border-teal-700/40">
+                  <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-xs font-bold text-zinc-700">Trust wallet</span>
               </div>
@@ -196,8 +204,8 @@ export default function Overview({
           <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-purple-300 shadow-sm">
-                  ∞
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-900 to-zinc-900 flex items-center justify-center text-purple-300 shadow-sm border border-purple-700/40">
+                  <Layers className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-xs font-bold text-zinc-700">Trust wallet</span>
               </div>
@@ -217,7 +225,7 @@ export default function Overview({
             <div className="bg-[#16171B] rounded-2xl p-3 text-white relative h-28 flex items-center px-4 overflow-hidden shadow-inner border border-white/[0.06]">
               <div className="flex items-center gap-1.5 w-full">
                 <div className="w-10 h-8 rounded-xl bg-gradient-to-r from-[#DDD6FE] to-[#C4B5FD] shadow-md flex items-center justify-center text-purple-900 font-extrabold text-xs">
-                  ●
+                  <Layers className="w-3.5 h-3.5 text-purple-900" />
                 </div>
                 {[...Array(18)].map((_, idx) => (
                   <div 
@@ -238,8 +246,8 @@ export default function Overview({
           <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-blue-400 shadow-sm">
-                  🛡
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-blue-900 to-zinc-900 flex items-center justify-center text-blue-400 shadow-sm border border-blue-700/40">
+                  <TrendingUp className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-xs font-bold text-zinc-700">Crypto</span>
               </div>
@@ -277,66 +285,83 @@ export default function Overview({
             </div>
           </div>
 
+
         </div>
       </AnimatedContent>
 
       {/* Row 2: 3 Major Modules (Depth & Personality) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
-        {/* Module 1: "Question of the day" Card with 3D Iris / Flower (3 cols on lg) */}
+        {/* Module 1: "Ask AI" Card with 3D Animated Iris / Flower (3 cols on lg) */}
         <div className="lg:col-span-3 bg-white rounded-[28px] p-5 border border-black/[0.05] shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col justify-between card-interactive relative overflow-hidden group">
           
           <div>
-            {/* Top Tag: ? Question of the day */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F3F4F7] text-zinc-700 text-[11px] font-semibold mb-3">
-              <div className="w-3.5 h-3.5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[9px] font-bold">
-                ?
+            {/* Top Tag: ✦ Ask AI */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/60 text-indigo-700 text-[11px] font-bold mb-3 shadow-xs">
+              <div className="w-3.5 h-3.5 rounded-full bg-indigo-600 text-white flex items-center justify-center">
+                <Sparkles className="w-2.5 h-2.5" />
               </div>
-              <span>Question of the day</span>
+              <span>Ask AI</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse ml-0.5"></span>
             </div>
 
-            {/* 3D Iris / Flower Graphic with Purple/Indigo AI aesthetic */}
-            <div className="relative w-full h-36 flex items-center justify-center my-1">
-              <div className="absolute w-28 h-28 rounded-full bg-indigo-500/20 blur-xl"></div>
+            {/* 3D Animated Iris / Flower Graphic with Smooth Rotation & Breathing Glow */}
+            <div className="relative w-full h-36 flex items-center justify-center my-1 select-none">
+              <div className="absolute w-28 h-28 rounded-full bg-indigo-500/20 blur-xl animate-flower-breathe"></div>
               
-              {/* Petals */}
-              <div className="relative w-32 h-32 flex items-center justify-center">
+              {/* Petals Rotating Continuously */}
+              <div className="relative w-32 h-32 flex items-center justify-center animate-spin-slow">
                 {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
                   <div
                     key={deg}
-                    className="absolute w-6 h-16 rounded-full bg-gradient-to-t from-[#6366F1] via-[#8B5CF6] to-[#38BDF8] opacity-80 shadow-md origin-bottom transform-gpu"
+                    className="absolute w-6 h-16 rounded-full bg-gradient-to-t from-[#6366F1] via-[#8B5CF6] to-[#38BDF8] opacity-85 shadow-md origin-bottom transform-gpu"
                     style={{ transform: `rotate(${deg}deg) translateY(-6px)` }}
                   ></div>
                 ))}
-                <div className="w-10 h-10 rounded-full bg-white shadow-xl z-10 flex items-center justify-center text-indigo-600 text-sm font-bold">
+                <div className="w-10 h-10 rounded-full bg-white shadow-xl z-10 flex items-center justify-center text-indigo-600 text-sm font-black border border-indigo-100/80">
                   ✦
                 </div>
               </div>
             </div>
 
-            {/* Frosted Royal-Blue Card Overlay */}
-            <div className="bg-gradient-to-b from-[#3B82F6]/95 to-[#2563EB] backdrop-blur-md p-4 rounded-2xl text-white shadow-lg text-center mt-2">
+            {/* Frosted Royal-Blue Interactive Prompt Card */}
+            <div 
+              onClick={() => {
+                setSelectedAiPrompt('performance');
+                setShowAiModal(true);
+              }}
+              className="bg-gradient-to-b from-[#3B82F6]/95 to-[#2563EB] backdrop-blur-md p-4 rounded-2xl text-white shadow-lg text-center mt-2 cursor-pointer group-hover:shadow-indigo-500/20 transition-all hover:scale-[1.02]"
+            >
               <p className="text-xs sm:text-sm font-bold leading-snug">
-                How did my investments perform over the last 3 months?
+                "How did my investments perform over the last 3 months?"
               </p>
               
-              <div className="flex items-center justify-center gap-2.5 mt-3 opacity-90 text-[11px]">
-                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold">●</span>
-                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold">🛡</span>
-                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold">∞</span>
+              <div className="flex items-center justify-center gap-2 mt-3 opacity-90 text-[11px]">
+                <span className="px-2 py-0.5 rounded-full bg-white/20 flex items-center gap-1 font-semibold text-[10px]">
+                  <Sparkles className="w-2.5 h-2.5 text-teal-300" />
+                  <span>Portfolio Yield</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-white/20 flex items-center gap-1 font-semibold text-[10px]">
+                  <ShieldCheck className="w-2.5 h-2.5 text-emerald-300" />
+                  <span>Solvency</span>
+                </span>
               </div>
             </div>
           </div>
 
           {/* Black Pill: ★ Ask AI Assistant */}
           <button 
-            onClick={() => setShowAiModal(true)}
+            onClick={() => {
+              setSelectedAiPrompt('performance');
+              setShowAiModal(true);
+            }}
             className="w-full bg-[#16171B] hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-full shadow-md flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 btn-interactive mt-4 group"
           >
-            <span className="text-amber-400">★</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
             <span>Ask AI Assistant</span>
           </button>
         </div>
+
 
         {/* Module 2: "Total balance $25,000.69" Hero Card (6 cols on lg) */}
         <div className="lg:col-span-6 bg-white rounded-[28px] p-6 border border-black/[0.05] shadow-[0_6px_28px_rgba(0,0,0,0.04)] flex flex-col justify-between card-interactive relative overflow-hidden">
@@ -592,56 +617,159 @@ export default function Overview({
 
       </div>
 
-      {/* AI Assistant Modal */}
+      {/* AI Assistant Modal: Fully Functional Financial Intelligence */}
       {showAiModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-zinc-900 border border-black/[0.08] animate-dropdown">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl text-zinc-900 border border-black/[0.08] animate-dropdown space-y-4">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#18191E] text-white flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#18191E] to-zinc-800 text-teal-400 flex items-center justify-center shadow-sm">
+                  <Sparkles className="w-4 h-4 text-teal-300" />
                 </div>
-                <h3 className="text-base font-bold text-zinc-900">AI Assistant Response</h3>
+                <div>
+                  <h3 className="text-base font-extrabold text-zinc-900 tracking-tight flex items-center gap-2">
+                    Fintrixity AI Financial Intelligence
+                  </h3>
+                  <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Live Portfolio & Cashflow Audit</span>
+                </div>
               </div>
               <button 
                 onClick={() => setShowAiModal(false)}
-                className="text-zinc-400 hover:text-zinc-700 text-sm font-bold p-1"
+                className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 flex items-center justify-center text-xs font-bold transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-zinc-600 leading-relaxed mb-4">
-              Over the last 3 months, your investments generated <strong>+14.2% annualized growth</strong> with a 98% solvency health rating.
-            </p>
-
-            <div className="space-y-2.5 mb-6 bg-[#F8F9FC] p-4 rounded-2xl border border-zinc-200">
-              <div className="flex justify-between text-xs">
-                <span className="text-zinc-600">Liquid Reserves:</span>
-                <span className="font-mono font-bold text-zinc-900">{formatVal(18200)}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-zinc-600">Monthly Net Surplus:</span>
-                <span className="font-mono font-bold text-emerald-600">+{formatVal(2850)}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-zinc-600">Zero-Income Runway:</span>
-                <span className="font-mono font-bold text-zinc-900">228 Days Safe</span>
-              </div>
+            {/* Quick Prompt Selectors */}
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: 'performance', label: '3M Performance' },
+                { id: 'affordability', label: 'SIP & Affordability' },
+                { id: 'runway', label: 'Runway & Solvency' }
+              ].map(prompt => (
+                <button
+                  key={prompt.id}
+                  onClick={() => setSelectedAiPrompt(prompt.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    selectedAiPrompt === prompt.id 
+                      ? 'bg-zinc-900 text-white shadow-sm' 
+                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                  }`}
+                >
+                  {prompt.label}
+                </button>
+              ))}
             </div>
 
-            <button
-              onClick={() => {
-                setShowAiModal(false);
-                setActiveTab('forecast');
+            {/* Dynamic AI Response Box */}
+            <div className="bg-[#FAFBFD] p-4 rounded-2xl border border-zinc-200/80 space-y-3">
+              {selectedAiPrompt === 'performance' && (
+                <>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-medium">
+                    Over the last 90 days, your portfolio generated <strong className="text-emerald-600">+14.2% annualized returns</strong>. Your highest yield asset was <strong className="text-zinc-900">Equity & Crypto (+5.99%)</strong>, outperforming benchmark fixed deposits by 7.1%.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div className="bg-white p-2.5 rounded-xl border border-zinc-100">
+                      <span className="text-[10px] text-zinc-400 block font-semibold">Net Unrealized Gain</span>
+                      <span className="font-mono font-bold text-emerald-600">+{formatVal(3420)}</span>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-zinc-100">
+                      <span className="text-[10px] text-zinc-400 block font-semibold">Sharpe Ratio</span>
+                      <span className="font-mono font-bold text-zinc-900">2.41 (Optimal)</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {selectedAiPrompt === 'affordability' && (
+                <>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-medium">
+                    Based on your average monthly inflow vs fixed outflow, you retain a liquid surplus of <strong className="text-emerald-600">+{formatVal(2850)}/month</strong>. You can safely allocate an additional <strong className="text-zinc-900">{formatVal(1500)}/mo</strong> to SIP investments without compromising your safety runway.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div className="bg-white p-2.5 rounded-xl border border-zinc-100">
+                      <span className="text-[10px] text-zinc-400 block font-semibold">Safe Monthly Allocation</span>
+                      <span className="font-mono font-bold text-teal-600">{formatVal(1500)}</span>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-zinc-100">
+                      <span className="text-[10px] text-zinc-400 block font-semibold">Burn Velocity</span>
+                      <span className="font-mono font-bold text-zinc-900">0.42 (Low Risk)</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {selectedAiPrompt === 'runway' && (
+                <>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-medium">
+                    Your current liquid reserves stand at <strong className="text-zinc-900">{formatVal(18200)}</strong>. Under zero-income conditions, your liquid runway covers <strong className="text-emerald-600">228 days</strong> of essential expenses, comfortably exceeding the 180-day baseline recommendation.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div className="bg-white p-2.5 rounded-xl border border-zinc-100">
+                      <span className="text-[10px] text-zinc-400 block font-semibold">Zero-Income Runway</span>
+                      <span className="font-mono font-bold text-emerald-600">228 Days</span>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-zinc-100">
+                      <span className="text-[10px] text-zinc-400 block font-semibold">Solvency Score</span>
+                      <span className="font-mono font-bold text-teal-600">98 / 100</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {selectedAiPrompt === 'custom' && (
+                <p className="text-xs text-zinc-700 leading-relaxed font-medium">
+                  Analysis for <em>"{aiCustomQuery}"</em>: Your cash balance, spending habits, and asset distribution indicate safe operational bandwidth. Total liquid capital is {formatVal(25000.69)}.
+                </p>
+              )}
+            </div>
+
+            {/* Interactive Query Input */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (aiCustomQuery.trim()) {
+                  setSelectedAiPrompt('custom');
+                }
               }}
-              className="w-full bg-[#18191E] hover:bg-black text-white text-xs font-bold py-3 rounded-full shadow-md transition-all btn-interactive"
+              className="flex items-center gap-2"
             >
-              Inspect Predictive Outlook
-            </button>
+              <input 
+                type="text" 
+                placeholder="Ask any question about your assets, runway, or bills..."
+                value={aiCustomQuery}
+                onChange={(e) => setAiCustomQuery(e.target.value)}
+                className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400"
+              />
+              <button 
+                type="submit"
+                className="bg-zinc-900 hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5 text-teal-400" />
+                <span>Ask</span>
+              </button>
+            </form>
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={() => {
+                  setShowAiModal(false);
+                  setActiveTab('forecast');
+                }}
+                className="w-full bg-[#18191E] hover:bg-black text-white text-xs font-bold py-2.5 rounded-full shadow-md transition-all btn-interactive text-center"
+              >
+                Inspect Full Forecast & Outlook →
+              </button>
+            </div>
+
           </div>
         </div>
       )}
+
 
     </div>
   );
