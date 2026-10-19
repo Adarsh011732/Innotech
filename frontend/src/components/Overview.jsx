@@ -305,20 +305,20 @@ export default function Overview({
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse ml-0.5"></span>
             </div>
 
-            {/* 3D Animated Iris / Flower Graphic with Smooth Rotation & Breathing Glow */}
+            {/* 3D Iris / Flower Graphic with Purple/Indigo AI aesthetic */}
             <div className="relative w-full h-36 flex items-center justify-center my-1 select-none">
-              <div className="absolute w-28 h-28 rounded-full bg-indigo-500/20 blur-xl animate-flower-breathe"></div>
+              <div className="absolute w-28 h-28 rounded-full bg-indigo-500/20 blur-xl"></div>
               
-              {/* Petals Rotating Continuously */}
-              <div className="relative w-32 h-32 flex items-center justify-center animate-spin-slow">
+              {/* Petals */}
+              <div className="relative w-32 h-32 flex items-center justify-center">
                 {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
                   <div
                     key={deg}
-                    className="absolute w-6 h-16 rounded-full bg-gradient-to-t from-[#6366F1] via-[#8B5CF6] to-[#38BDF8] opacity-85 shadow-md origin-bottom transform-gpu"
+                    className="absolute w-6 h-16 rounded-full bg-gradient-to-t from-[#6366F1] via-[#8B5CF6] to-[#38BDF8] opacity-80 shadow-md origin-bottom transform-gpu"
                     style={{ transform: `rotate(${deg}deg) translateY(-6px)` }}
                   ></div>
                 ))}
-                <div className="w-10 h-10 rounded-full bg-white shadow-xl z-10 flex items-center justify-center text-indigo-600 text-sm font-black border border-indigo-100/80">
+                <div className="w-10 h-10 rounded-full bg-white shadow-xl z-10 flex items-center justify-center text-indigo-600 text-sm font-bold border border-indigo-100/80">
                   ✦
                 </div>
               </div>
