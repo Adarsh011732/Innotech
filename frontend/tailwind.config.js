@@ -8,20 +8,12 @@ export default {
     extend: {
       colors: {
         dark: {
-          950: '#090A0D',
-          900: '#0E1015',
-          850: '#13161C',
-          800: '#181C24',
-          750: '#1F242F',
-          700: '#2A303E',
-        },
-        surface: {
-          base: '#090A0D',
-          panel: '#0E1015',
-          card: '#13161C',
-          elevated: '#181C24',
-          border: 'rgba(255, 255, 255, 0.07)',
-          borderHover: 'rgba(255, 87, 34, 0.4)',
+          950: '#090A0C',
+          900: '#0E0F13',
+          850: '#14151A',
+          800: '#1A1B22',
+          750: '#22242D',
+          700: '#2C2E3A',
         },
         orange: {
           DEFAULT: '#FF5722',
@@ -45,21 +37,17 @@ export default {
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
-        'orange-glow': '0 4px 20px -2px rgba(255, 87, 34, 0.35)',
-        'orange-sm': '0 2px 8px rgba(255, 87, 34, 0.25)',
-        'card-subtle': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
-        'card-hover': '0 8px 24px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 87, 34, 0.25)',
+        'orange-glow': '0 8px 30px -4px rgba(255, 87, 34, 0.45)',
+        'orange-sm': '0 2px 12px rgba(255, 87, 34, 0.3)',
+        'card-hover': '0 12px 32px -4px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 87, 34, 0.25)',
       },
       borderRadius: {
-        'xs': '4px',
-        'sm': '6px',
-        'md': '8px',
-        'lg': '10px',
-        'xl': '12px',
-        '2xl': '16px',
+        'xl': '14px',
+        '2xl': '20px',
+        '3xl': '28px',
       }
     },
   },

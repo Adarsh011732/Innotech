@@ -14,13 +14,7 @@ export default function BlurText({
   const [inView, setInView] = useState(false);
   const ref = useRef(null);
 
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   useEffect(() => {
-    if (prefersReducedMotion) {
-      setInView(true);
-      return;
-    }
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => {
@@ -31,7 +25,7 @@ export default function BlurText({
     }, { threshold });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold, prefersReducedMotion]);
+  }, [threshold]);
 
   const items = useMemo(() => {
     return animateBy === 'words' ? text.split(' ') : Array.from(text);
@@ -42,12 +36,12 @@ export default function BlurText({
       {items.map((item, idx) => (
         <span
           key={idx}
-          className="inline-block transition-all duration-400 ease-out"
+          className="inline-block transition-all duration-700 ease-out will-change-[filter,opacity,transform]"
           style={{
-            filter: prefersReducedMotion || inView ? 'blur(0px)' : `blur(${blur}px)`,
-            opacity: prefersReducedMotion || inView ? 1 : 0,
-            transform: prefersReducedMotion || inView ? 'translateY(0px)' : `translateY(${direction === 'top' ? -distance : distance}px)`,
-            transitionDelay: prefersReducedMotion ? '0ms' : `${idx * delay}ms`,
+            filter: inView ? 'blur(0px)' : `blur(${blur}px)`,
+            opacity: inView ? 1 : 0,
+            transform: inView ? 'translateY(0px)' : `translateY(${direction === 'top' ? -distance : distance}px)`,
+            transitionDelay: `${idx * delay}ms`,
             marginRight: animateBy === 'words' ? '0.3em' : '0'
           }}
         >
