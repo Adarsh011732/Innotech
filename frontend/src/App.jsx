@@ -161,7 +161,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex w-screen h-screen bg-[#08090C] text-white overflow-hidden font-sans">
+    <div className="flex w-screen h-screen bg-[#090A0D] text-white overflow-hidden font-sans">
       {/* Sidebar (Fintrixity navigation) */}
       <Sidebar 
         activeTab={activeTab} 
@@ -246,8 +246,8 @@ export default function App() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-[#14161E] border border-[#FF5722]/50 text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-[#FF5722]/25 z-50 flex items-center gap-3 animate-dropdown text-xs font-bold">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]"></span>
+        <div className="fixed bottom-5 right-5 bg-[#13161C] border border-white/[0.12] text-white px-4 py-2.5 rounded-lg shadow-xl z-50 flex items-center gap-2.5 animate-dropdown text-xs font-medium">
+          <span className="w-2 h-2 rounded-full bg-[#FF5722]"></span>
           <span>{toastMessage.text}</span>
         </div>
       )}

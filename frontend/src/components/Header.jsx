@@ -36,130 +36,112 @@ export default function Header({
   const isSafe = solvencyScore >= 70;
 
   return (
-    <header className="h-16 min-h-[64px] bg-[#0E0F14] border-b border-[#1C1E26] px-4 sm:px-6 lg:px-8 flex items-center justify-between select-none z-20">
+    <header className="h-14 min-h-[56px] bg-[#0E1015] border-b border-white/[0.07] px-4 sm:px-6 lg:px-8 flex items-center justify-between select-none z-20">
       
-      {/* Left: Mobile Toggle + Breadcrumb Navigation (from image.png) */}
-      <div className="flex items-center gap-2.5">
+      {/* Left: Mobile Toggle + Breadcrumb Navigation */}
+      <div className="flex items-center gap-3">
         {/* Mobile Hamburger */}
         <button 
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-1.5 rounded-xl bg-[#15171F] border border-[#232634] text-[#9CA3AF] hover:text-white"
+          className="lg:hidden p-1.5 rounded-lg bg-[#13161C] border border-white/[0.08] text-zinc-400 hover:text-white"
+          aria-label="Toggle Navigation Menu"
         >
           <Menu className="w-4 h-4" />
         </button>
 
         {/* Back / Forward arrows */}
-        <div className="hidden sm:flex items-center gap-1.5">
+        <div className="hidden sm:flex items-center gap-1">
           <button 
             onClick={() => setActiveTab('dashboard')}
-            className="w-7 h-7 rounded-lg bg-[#15171F] border border-[#232634] flex items-center justify-center text-[#9CA3AF] hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
-            title="Back"
+            className="w-7 h-7 rounded-md bg-[#13161C] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
+            title="Dashboard"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button 
             onClick={() => setActiveTab('forecast')}
-            className="w-7 h-7 rounded-lg bg-[#15171F] border border-[#232634] flex items-center justify-center text-[#9CA3AF] hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
-            title="Forward"
+            className="w-7 h-7 rounded-md bg-[#13161C] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
+            title="Analytics"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Breadcrumb Trail (Exact from image.png: Fintrixity > Dashboard) */}
-        <div className="flex items-center gap-1.5 ml-1 text-xs text-[#9CA3AF]">
+        {/* Breadcrumb Trail */}
+        <div className="flex items-center gap-2 text-xs">
           <span 
-            className="hover:text-white cursor-pointer transition-colors"
+            className="text-zinc-400 hover:text-white cursor-pointer font-medium transition-colors"
             onClick={() => setActiveTab('dashboard')}
           >
             Fintrixity
           </span>
-          <span className="text-[#4B5563]">›</span>
-          <span className="text-white font-bold">{tabTitles[activeTab] || 'Dashboard'}</span>
+          <span className="text-zinc-600">/</span>
+          <span className="text-white font-semibold tracking-tight">{tabTitles[activeTab] || 'Dashboard'}</span>
         </div>
       </div>
 
-      {/* Right Controls (from image.png) */}
+      {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Solvency Health Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 bg-[#15171F] border border-[#232634] px-2.5 py-1 rounded-xl text-xs">
-          {isSafe ? (
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          ) : (
-            <ShieldAlert className="w-3.5 h-3.5 text-[#FF5722]" />
-          )}
-          <span className="text-[11px] text-[#9CA3AF] font-medium">Solvency:</span>
-          <span className={`font-extrabold ${isSafe ? 'text-emerald-400' : 'text-[#FF5722]'}`}>
+        <div className="hidden md:flex items-center gap-2 bg-[#13161C] border border-white/[0.07] px-2.5 py-1 rounded-md text-xs">
+          <span className={`w-1.5 h-1.5 rounded-full ${isSafe ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.4)]' : 'bg-[#FF5722] shadow-[0_0_6px_rgba(255,87,34,0.4)]'}`}></span>
+          <span className="text-zinc-400 font-medium">Solvency:</span>
+          <span className={`font-mono font-bold ${isSafe ? 'text-emerald-400' : 'text-[#FF5722]'}`}>
             {solvencyScore}/100
           </span>
         </div>
 
         {/* Persona Selector Dropdown */}
-        <div className="flex items-center bg-[#15171F] border border-[#232634] rounded-xl px-2.5 py-1.5 text-xs">
-          <span className="hidden sm:inline text-[11px] text-[#6B7280] mr-1.5 font-medium">Persona:</span>
+        <div className="flex items-center bg-[#13161C] border border-white/[0.08] rounded-md px-2.5 py-1 text-xs">
+          <span className="hidden sm:inline text-zinc-400 mr-1.5 font-medium">Profile:</span>
           <select 
             value={currentPersona}
             onChange={(e) => onPersonaChange(e.target.value)}
-            className="bg-transparent text-white font-bold outline-none cursor-pointer text-xs"
+            className="bg-transparent text-white font-semibold outline-none cursor-pointer text-xs focus:ring-0"
           >
-            <option value="salaried" className="bg-[#15171F] text-white">Salaried Tech Exec</option>
-            <option value="freelancer" className="bg-[#15171F] text-white">Volatile Freelancer</option>
-            <option value="student" className="bg-[#15171F] text-white">Student (Tight Runway)</option>
+            <option value="salaried" className="bg-[#13161C] text-white">Salaried Tech Exec</option>
+            <option value="freelancer" className="bg-[#13161C] text-white">Volatile Freelancer</option>
+            <option value="student" className="bg-[#13161C] text-white">Student (Tight Runway)</option>
           </select>
         </div>
 
-        {/* Action Circles (Exact from image.png) */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Reset Data Button */}
+        {/* Action Buttons */}
+        <div className="flex items-center gap-1.5">
+          {/* Refresh Data */}
           <button 
             onClick={onResetData}
             disabled={isRefreshing}
-            className="w-8 h-8 rounded-full bg-[#15171F] border border-[#232634] flex items-center justify-center text-[#9CA3AF] hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
-            title="Reset Data to Baseline"
+            className="w-7 h-7 rounded-md bg-[#13161C] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
+            title="Refresh Ledger"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#FF5722]' : ''}`} />
           </button>
 
           <button 
-            onClick={() => setActiveTab('simulator')}
-            className="hidden sm:flex w-8 h-8 rounded-full bg-[#15171F] border border-[#232634] items-center justify-center text-[#9CA3AF] hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
-            title="Help"
-          >
-            <HelpCircle className="w-3.5 h-3.5" />
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('transactions')}
-            className="hidden sm:flex w-8 h-8 rounded-full bg-[#15171F] border border-[#232634] items-center justify-center text-[#9CA3AF] hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
-            title="Mail & Statements"
-          >
-            <Mail className="w-3.5 h-3.5" />
-          </button>
-
-          <button 
-            className="relative w-8 h-8 rounded-full bg-[#15171F] border border-[#232634] flex items-center justify-center text-[#9CA3AF] hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
-            title="Notifications"
+            className="relative w-7 h-7 rounded-md bg-[#13161C] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:border-[#FF5722]/50 transition-all btn-interactive"
+            title="Alerts"
           >
             <Bell className="w-3.5 h-3.5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]"></span>
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#FF5722]"></span>
           </button>
 
-          {/* User Profile Avatar with Online Ring (from image.png) */}
-          <div className="relative w-8 h-8 rounded-full bg-[#20232E] flex items-center justify-center font-bold text-xs text-white border border-[#333747] cursor-pointer ml-0.5">
-            <span className="text-[11px] font-bold">JD</span>
-            <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0E0F14]"></span>
+          {/* User Profile Avatar */}
+          <div className="relative w-7 h-7 rounded-md bg-[#181C24] flex items-center justify-center font-bold text-xs text-white border border-white/[0.12] cursor-pointer ml-1">
+            <span className="text-[10px] font-mono">JD</span>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0E1015]"></span>
           </div>
         </div>
 
-        {/* Orange CTA Share Button (Exact from image.png!) */}
+        {/* Orange CTA Export / Share */}
         <button 
           onClick={() => setActiveTab('goals')}
-          className="bg-gradient-to-r from-[#FF5722] to-[#FF6D00] hover:from-[#F4511E] hover:to-[#FF5722] text-white font-bold text-xs px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shadow-[#FF5722]/30 transition-all active:scale-95 btn-interactive"
+          className="bg-[#FF5722] hover:bg-[#F4511E] text-white font-semibold text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm transition-all active:scale-95 btn-interactive ml-1"
         >
           <Share2 className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Share</span>
+          <span className="hidden sm:inline">Export</span>
         </button>
       </div>
     </header>
   );
 }
+

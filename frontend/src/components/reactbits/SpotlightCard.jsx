@@ -4,7 +4,7 @@ export default function SpotlightCard({
   children,
   className = '',
   style = {},
-  spotlightColor = 'rgba(255, 87, 34, 0.25)',
+  spotlightColor = 'rgba(255, 87, 34, 0.14)',
   ...props
 }) {
   const divRef = useRef(null);
@@ -24,14 +24,14 @@ export default function SpotlightCard({
     <div
       ref={divRef}
       onMouseMove={handleMouseMove}
-      className={`relative overflow-hidden rounded-3xl border border-[#232634] bg-[#14161E] p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 group ${className}`}
+      className={`relative overflow-hidden rounded-xl border border-white/[0.07] bg-[#13161C] p-5 shadow-sm transition-all duration-200 hover:border-white/[0.14] group ${className}`}
       style={style}
       {...props}
     >
       <div
         className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10"
         style={{
-          background: `radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), var(--spotlight-color, ${spotlightColor}), transparent 60%)`,
+          background: `radial-gradient(360px circle at var(--mouse-x, 0) var(--mouse-y, 0), var(--spotlight-color, ${spotlightColor}), transparent 65%)`,
         }}
       />
       <div className="relative z-20">

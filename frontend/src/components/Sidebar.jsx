@@ -44,22 +44,22 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
       {/* Sidebar Container */}
       <aside className={`
         fixed lg:static top-0 bottom-0 left-0 z-50
-        w-[250px] min-w-[250px] h-screen bg-[#0E0F14] border-r border-[#1C1E26]
-        flex flex-col justify-between p-4 sm:p-5 select-none
-        transition-transform duration-300 ease-in-out
+        w-[235px] min-w-[235px] h-screen bg-[#0E1015] border-r border-white/[0.07]
+        flex flex-col justify-between p-4 select-none
+        transition-transform duration-200 ease-in-out
         ${isMobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col">
-          {/* Brand Header (from image.png: Fintrixity lightning icon + text) */}
-          <div className="flex items-center justify-between mb-5">
+          {/* Brand Header */}
+          <div className="flex items-center justify-between mb-4">
             <div 
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2.5 cursor-pointer group"
               onClick={() => { setActiveTab('dashboard'); if (setIsMobileOpen) setIsMobileOpen(false); }}
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF6D00] to-[#FFA000] flex items-center justify-center text-white shadow-lg shadow-[#FF5722]/35 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-6">
+              <div className="w-7 h-7 rounded-md bg-[#FF5722] flex items-center justify-center text-white shadow-sm shadow-[#FF5722]/30 transition-transform duration-200 group-hover:scale-105">
                 <Zap className="w-4 h-4 fill-white stroke-none" />
               </div>
-              <span className="text-white font-extrabold text-xl tracking-tight leading-none group-hover:text-[#FF5722] transition-colors">
+              <span className="text-white font-bold text-lg tracking-tight leading-none group-hover:text-[#FF5722] transition-colors">
                 Fintrixity
               </span>
             </div>
@@ -67,27 +67,27 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
             {/* Mobile Close Button */}
             <button 
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden text-[#9CA3AF] hover:text-white p-1"
+              className="lg:hidden text-zinc-400 hover:text-white p-1"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Search Bar with ⌘K (from image.png) */}
-          <div className="relative flex items-center bg-[#15171F] border border-[#232634] rounded-xl px-3 py-2 mb-4 focus-within:border-[#FF5722] focus-within:ring-1 focus-within:ring-[#FF5722]/30 transition-all">
-            <Search className="w-3.5 h-3.5 text-[#6B7280] mr-2 shrink-0" />
+          {/* Search Bar with ⌘K */}
+          <div className="relative flex items-center bg-[#13161C] border border-white/[0.07] rounded-md px-2.5 py-1.5 mb-4 focus-within:border-[#FF5722] transition-colors">
+            <Search className="w-3.5 h-3.5 text-zinc-500 mr-2 shrink-0" />
             <input 
               type="text" 
-              placeholder="Search" 
-              className="bg-transparent border-none text-white text-xs w-full outline-none placeholder-[#6B7280]"
+              placeholder="Search..." 
+              className="bg-transparent border-none text-white text-xs w-full outline-none placeholder-zinc-500 font-medium"
             />
-            <kbd className="text-[10px] font-mono bg-[#20232E] border border-[#2D303E] rounded px-1.5 py-0.5 text-[#9CA3AF]">
+            <kbd className="text-[9px] font-mono bg-white/[0.06] border border-white/[0.08] rounded px-1 py-0.5 text-zinc-400">
               ⌘K
             </kbd>
           </div>
 
-          {/* Primary Nav Menu (from image.png) */}
-          <nav className="flex flex-col gap-1.5">
+          {/* Primary Nav Menu */}
+          <nav className="flex flex-col gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -98,19 +98,19 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
                     setActiveTab(item.id);
                     if (setIsMobileOpen) setIsMobileOpen(false);
                   }}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 btn-interactive ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all duration-150 btn-interactive ${
                     isActive
-                      ? 'bg-black text-white shadow-md border border-[#2B2E3A] ring-1 ring-white/10'
-                      : 'text-[#9CA3AF] hover:bg-[#161822] hover:text-white'
+                      ? 'bg-[#181C24] text-white border border-white/[0.08] shadow-sm'
+                      : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF5722]' : 'text-[#6B7280]'}`} />
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF5722]' : 'text-zinc-500'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-[#FF5722]/20 text-[#FF5722]' : 'bg-[#1D1F29] text-[#9CA3AF]'
+                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                      isActive ? 'bg-[#FF5722]/15 text-[#FF5722]' : 'bg-white/[0.05] text-zinc-400'
                     }`}>
                       {item.badge}
                     </span>
@@ -119,9 +119,9 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
               );
             })}
 
-            {/* FEATURES Section Header (from image.png) */}
-            <div className="text-[10px] font-bold text-[#555B6E] tracking-wider uppercase px-3.5 pt-4 pb-1">
-              FEATURES
+            {/* FEATURES Section Header */}
+            <div className="text-[10px] font-semibold text-zinc-500 tracking-wider uppercase px-3 pt-4 pb-1">
+              Analytics & Models
             </div>
 
             {featureItems.map((item) => {
@@ -134,18 +134,18 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
                     setActiveTab(item.id);
                     if (setIsMobileOpen) setIsMobileOpen(false);
                   }}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 btn-interactive ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all duration-150 btn-interactive ${
                     isActive
-                      ? 'bg-black text-white shadow-md border border-[#2B2E3A] ring-1 ring-white/10'
-                      : 'text-[#9CA3AF] hover:bg-[#161822] hover:text-white'
+                      ? 'bg-[#181C24] text-white border border-white/[0.08] shadow-sm'
+                      : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF5722]' : 'text-[#6B7280]'}`} />
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF5722]' : 'text-zinc-500'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#1D1F29] text-[#9CA3AF]">
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/[0.05] text-zinc-400">
                       {item.badge}
                     </span>
                   )}
@@ -155,27 +155,21 @@ export default function Sidebar({ activeTab, setActiveTab, txCount = 0, isMobile
           </nav>
         </div>
 
-        {/* Upgrade Pro Card (Exact from image.png!) */}
-        <div className="bg-[#14161E] border border-[#232634] rounded-2xl p-4 mt-4 shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5722]/10 rounded-full blur-xl pointer-events-none group-hover:bg-[#FF5722]/20 transition-colors"></div>
-          <div className="flex items-center gap-1.5 mb-1 font-bold text-xs">
-            <ShinyText text="Upgrade Pro! 👑" speed={2.5} className="font-bold text-xs" />
+        {/* Tier Info Card */}
+        <div className="bg-[#13161C] border border-white/[0.07] rounded-lg p-3.5 mt-4 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-white">Fintrixity Pro</span>
+            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">Active</span>
           </div>
-          <p className="text-[#9CA3AF] text-[11px] leading-relaxed mb-3">
-            Higher productivity with better organization
+          <p className="text-zinc-400 text-[11px] leading-relaxed mb-3">
+            Real-time CQR confidence bands & multi-scenario simulation enabled.
           </p>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => { setActiveTab('goals'); if (setIsMobileOpen) setIsMobileOpen(false); }}
-              className="bg-gradient-to-r from-[#FF5722] to-[#FF6D00] hover:from-[#F4511E] hover:to-[#FF5722] text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md shadow-[#FF5722]/30 transition-all active:scale-95 btn-interactive"
-            >
-              Upgrade
-            </button>
+          <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] text-[11px]">
             <span 
               onClick={() => { setActiveTab('simulator'); if (setIsMobileOpen) setIsMobileOpen(false); }}
-              className="text-[#6B7280] hover:text-white text-xs cursor-pointer transition-colors"
+              className="text-[#FF5722] hover:text-[#FFA000] cursor-pointer font-medium transition-colors"
             >
-              Learn more
+              Configure engine →
             </span>
           </div>
         </div>

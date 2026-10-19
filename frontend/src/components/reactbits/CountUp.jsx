@@ -14,6 +14,13 @@ export default function CountUp({
   const prevTo = useRef(from);
 
   useEffect(() => {
+    // Check prefers-reduced-motion
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      setCurrent(to);
+      return;
+    }
+
     let startTimestamp = null;
     const startVal = prevTo.current;
     const endVal = to;
@@ -42,5 +49,5 @@ export default function CountUp({
     maximumFractionDigits: decimals
   })}${suffix}`;
 
-  return <span className={`tabular-nums ${className}`}>{formatted}</span>;
+  return <span className={`tabular-nums font-mono ${className}`}>{formatted}</span>;
 }
