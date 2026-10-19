@@ -5,14 +5,14 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #08090C;
-  color: #F3F4F6;
+  background-color: #F4F6FA;
+  color: #111216;
   font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
   user-select: none;
@@ -142,4 +142,112 @@ body {
   stroke-dashoffset: 1000;
   animation: drawLine 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Piggy Bank & Coin Drop Animations */
+@keyframes coinDrop {
+  0% {
+    transform: translateY(-80px) scale(0.9);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(52px) scale(1);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(68px) scale(0.65);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(75px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.animate-coin-drop {
+  animation: coinDrop 2.4s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+@keyframes coinSpin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.animate-coin-spin {
+  animation: coinSpin 1.2s infinite linear;
+}
+
+@keyframes piggyBounce {
+  0%, 70%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  76% {
+    transform: scale(1.05, 0.93) translateY(4px);
+  }
+  84% {
+    transform: scale(0.97, 1.04) translateY(-3px);
+  }
+  92% {
+    transform: scale(1.02, 0.98) translateY(1px);
+  }
+}
+
+.animate-piggy-bounce {
+  animation: piggyBounce 2.4s infinite ease-in-out;
+}
+
+@keyframes sparkle1 {
+  0%, 74% { opacity: 0; transform: scale(0); }
+  78% { opacity: 1; transform: scale(1.2) translate(-8px, -8px); }
+  88% { opacity: 0; transform: scale(0.2) translate(-14px, -14px); }
+  100% { opacity: 0; }
+}
+
+@keyframes sparkle2 {
+  0%, 74% { opacity: 0; transform: scale(0); }
+  78% { opacity: 1; transform: scale(1.2) translate(8px, -8px); }
+  88% { opacity: 0; transform: scale(0.2) translate(14px, -14px); }
+  100% { opacity: 0; }
+}
+
+@keyframes sparkle3 {
+  0%, 74% { opacity: 0; transform: scale(0); }
+  78% { opacity: 1; transform: scale(1.4) translate(0px, -12px); }
+  88% { opacity: 0; transform: scale(0.2) translate(0px, -20px); }
+  100% { opacity: 0; }
+}
+
+.animate-sparkle-1 { animation: sparkle1 2.4s infinite ease-out; }
+.animate-sparkle-2 { animation: sparkle2 2.4s infinite ease-out; }
+.animate-sparkle-3 { animation: sparkle3 2.4s infinite ease-out; }
+
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 3.5s infinite ease-in-out;
+}
+
+.animate-bounce-delayed {
+  animation: bounceSubtle 3.5s infinite ease-in-out 1.75s;
+}
+
+@keyframes shadowScale {
+  0%, 70%, 100% { transform: scale(1); opacity: 0.25; }
+  76% { transform: scale(1.1); opacity: 0.35; }
+  84% { transform: scale(0.95); opacity: 0.2; }
+}
+
+.animate-shadow-scale {
+  animation: shadowScale 2.4s infinite ease-in-out;
+}
+
 

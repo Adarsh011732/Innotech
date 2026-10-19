@@ -12,8 +12,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import CountUp from './reactbits/CountUp';
-import SpotlightCard from './reactbits/SpotlightCard';
 import AnimatedContent from './reactbits/AnimatedContent';
+import { formatMoney, getConvertedValue } from '../utils/currency';
 
 // Helper to compute smooth cubic bezier paths
 function getSmoothSplinePath(points) {
@@ -37,9 +37,9 @@ function getSmoothSplinePath(points) {
   return path;
 }
 
-export default function ForecastView({ forecastData, onHorizonChange, currentHorizon = 60 }) {
+export default function ForecastView({ forecastData, onHorizonChange, currentHorizon = 60, activeCurrency = 'INR' }) {
   const trajectory = forecastData?.trajectory || [];
-  const burnRate = forecastData?.historical_burn_rate_daily ?? 150.16;
+  const rawBurnRate = forecastData?.historical_burn_rate_daily ?? 150.16;
   const hasShortfall = trajectory.some(p => p.lower_bound_90 <= 0);
 
   const [hoveredIdx, setHoveredIdx] = useState(null);
@@ -61,7 +61,6 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
     minVal = Math.min(...allVals);
     maxVal = Math.max(...allVals);
     
-    // Add 15% headroom and bottomroom
     const range = maxVal - minVal || 1000;
     maxVal = maxVal + range * 0.15;
     minVal = Math.min(minVal - range * 0.08, 0);
@@ -90,20 +89,17 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
   const medianSpline = getSmoothSplinePath(medianPoints);
   const upperSpline = getSmoothSplinePath(upperPoints);
   
-  // Reverse lower points for band polygon
   const lowerPointsReversed = [...lowerPoints].reverse();
   let lowerSplineReversed = '';
   if (lowerPointsReversed.length > 0) {
-    lowerSplineReversed = lowerPointsReversed.map((pt, i) => `${i === 0 ? 'L' : 'L'} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ');
+    lowerSplineReversed = lowerPointsReversed.map((pt, i) => `L ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ');
   }
   const bandPolygon = upperSpline ? `${upperSpline} ${lowerSplineReversed} Z` : '';
 
-  // Area under median curve for glowing gradient
   const areaUnderMedian = medianPoints.length > 0 
     ? `${medianSpline} L ${medianPoints[medianPoints.length - 1].x} ${getY(minVal)} L ${medianPoints[0].x} ${getY(minVal)} Z`
     : '';
 
-  // Y-axis ticks (4 ticks)
   const yTicks = [
     maxVal,
     maxVal * 0.66 + minVal * 0.33,
@@ -111,7 +107,6 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
     minVal < 0 ? 0 : minVal
   ];
 
-  // X-axis date milestones
   const dateMilestones = [0, 0.25, 0.5, 0.75, 1.0].map(pct => {
     const idx = Math.min(trajectory.length - 1, Math.round((trajectory.length - 1) * pct));
     const pt = trajectory[idx];
@@ -129,7 +124,6 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
     const clientX = e.clientX - rect.left;
     const svgX = (clientX / rect.width) * svgWidth;
     
-    // Find closest index
     let closestIdx = 0;
     let minDiff = Infinity;
     trajectory.forEach((_, i) => {
@@ -153,118 +147,116 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
   const isEndingPositive = endingBalance >= 0;
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#08090C] relative">
-      {/* Ambient Top Glow strictly in upper half */}
-      <div className="pointer-events-none absolute top-0 left-1/3 right-1/3 h-[320px] bg-[#FF5722]/10 blur-[120px] rounded-full -translate-y-1/2"></div>
-
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F4F6FA] text-zinc-900">
+      
       {/* Header Row */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
-            <span>Cash Flow Outlook & Forecast</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FF5722]/15 text-[#FF5722] border border-[#FF5722]/30 font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-[#FF5722]" />
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight flex items-center gap-2.5">
+            <span>Cash Flow Forecast</span>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 font-bold flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-teal-600" />
               <span>90% Confidence Corridor</span>
             </span>
           </h1>
-          <p className="text-xs text-[#9CA3AF] mt-1 font-medium">
-            Stochastic probabilistic Monte-Carlo cash flow forecast with multi-horizon runway projection.
+          <p className="text-xs text-zinc-500 mt-1 font-medium">
+            Multi-horizon Monte Carlo projection of liquid buffer and growth trajectory.
           </p>
         </div>
         
-        {/* Horizon selector chips with smooth animations */}
-        <div className="flex items-center gap-1.5 bg-[#121319] border border-[#22242F] p-1.5 rounded-2xl shadow-lg">
+        {/* Horizon selector chips */}
+        <div className="flex items-center gap-1.5 bg-white border border-black/[0.06] p-1.5 rounded-full shadow-sm">
           {[30, 60, 90].map((days) => (
             <button
               key={days}
               onClick={() => onHorizonChange(days)}
-              className={`relative hover:z-20 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 btn-interactive ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 btn-interactive ${
                 currentHorizon === days 
-                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FF6D00] text-white shadow-lg shadow-[#FF5722]/40 scale-100' 
-                  : 'text-[#9CA3AF] hover:text-white hover:bg-[#1A1C25]'
+                  ? 'bg-zinc-900 text-white shadow-md' 
+                  : 'text-zinc-500 hover:text-zinc-900'
               }`}
             >
-              {days} Days Outlook
+              {days} Days
             </button>
           ))}
         </div>
       </div>
 
-      {/* Dynamic Runway Alert Banner */}
-      <div className="relative z-10">
+      {/* Runway Alert Banner */}
+      <div>
         {hasShortfall ? (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex items-center gap-3 text-red-200 shadow-md">
-            <div className="w-8 h-8 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4 h-4 animate-pulse" />
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-red-800 shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-4 h-4" />
             </div>
             <div className="text-xs">
-              <span className="font-bold text-red-300">Liquidity Warning (90% Lower Bound):</span> Conservative market scenarios predict liquidity approaching zero around Day 42. Consider engaging a recommended spending adjustment in the simulator.
+              <span className="font-bold">Liquidity Warning (90% Lower Bound):</span> Conservative scenarios predict cash reserves approaching zero around Day 42. Consider applying a budget optimization in the simulator.
             </div>
           </div>
         ) : (
-          <div className="bg-[#111217] border border-[#222530] rounded-2xl p-4 flex items-center justify-between text-white shadow-xl hover:border-emerald-500/30 transition-all">
+          <div className="bg-white border border-black/[0.06] rounded-2xl p-4 flex items-center justify-between text-zinc-800 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xs font-bold text-white flex items-center gap-2">
+                <div className="text-xs font-bold text-zinc-900 flex items-center gap-2">
                   <span>Solvency Runway Resilient</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10B981]"></span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 </div>
-                <div className="text-[11px] text-[#9CA3AF] mt-0.5">
-                  Liquid reserves maintain positive buffer through the full {currentHorizon}-day planning horizon.
+                <div className="text-[11px] text-zinc-500 mt-0.5">
+                  Liquid reserves maintain positive buffer through the full {currentHorizon}-day window.
                 </div>
               </div>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full hidden sm:inline-block">
-              Runway: {currentHorizon}+ Days Safe
+            <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full hidden sm:inline-block">
+              {currentHorizon}+ Days Safe
             </span>
           </div>
         )}
       </div>
 
-      {/* Main Elevated Forecast Visualizer Container */}
-      <div className="relative z-10 bg-[#111217] border border-[#222530] rounded-3xl p-5 sm:p-6 text-white shadow-2xl card-interactive overflow-hidden">
+      {/* Main Forecast Visualizer Card with Dark Inner Canvas */}
+      <div className="bg-white border border-black/[0.06] rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)] card-interactive">
         
-        {/* Top Metric & Legend Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-3 border-b border-[#1E202B]">
+        {/* Metric Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-3 border-b border-zinc-100">
           <div>
-            <div className="text-xs font-semibold text-[#9CA3AF] flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-zinc-500 flex items-center gap-1.5">
               <span>Projected Ending Balance ({currentHorizon} Days)</span>
-              <Activity className="w-3.5 h-3.5 text-[#FF5722]" />
-            </div>
-            <div className="text-3xl font-extrabold text-white mt-0.5 flex items-baseline gap-2">
-              <span className={`font-mono tabular-nums ${isEndingPositive ? 'text-white' : 'text-red-400'}`}>
+              <Activity className="w-3.5 h-3.5 text-teal-600" />
+            </span>
+            <div className="text-3xl font-extrabold text-zinc-900 mt-0.5 flex items-baseline gap-2.5">
+              <span className="font-mono tabular-nums">
                 <CountUp 
-                  to={endingBalance} 
+                  to={getConvertedValue(endingBalance, activeCurrency, true)} 
                   duration={1.2} 
                   decimals={2} 
-                  prefix={endingBalance < 0 ? '-$' : '$'} 
+                  prefix={activeCurrency === 'INR' ? '₹' : '$'} 
                 />
               </span>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isEndingPositive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${isEndingPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
                 {isEndingPositive ? '+14.2% Growth' : 'Deficit Risk'}
               </span>
             </div>
           </div>
 
           {/* Interactive Legend */}
-          <div className="flex items-center gap-4 sm:gap-6 text-xs text-[#9CA3AF]">
+          <div className="flex items-center gap-4 text-xs text-zinc-500">
             <div className="flex items-center gap-2">
-              <span className="w-3.5 h-3 rounded-sm bg-gradient-to-r from-[#FF5722]/40 to-[#FFA000]/20 border border-[#FF5722]/50"></span>
-              <span>Likely Range (90% Confidence)</span>
+              <span className="w-3.5 h-3 rounded-sm bg-teal-500/30 border border-teal-500"></span>
+              <span>Likely Range (90%)</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-4 h-1 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]"></span>
-              <span className="text-white font-semibold">Expected Median Path</span>
+              <span className="w-4 h-1 rounded-full bg-teal-500"></span>
+              <span className="text-zinc-800 font-semibold">Expected Path</span>
             </div>
           </div>
         </div>
 
-        {/* Dynamic Interactive SVG Chart */}
+        {/* Dynamic Dark Canvas for SVG Chart */}
         <div 
-          className="relative w-full h-[300px] sm:h-[330px] bg-[#0A0B0E] border border-[#1E202B] rounded-2xl p-2 sm:p-4 overflow-hidden cursor-crosshair group"
+          className="relative w-full h-[300px] sm:h-[320px] bg-[#111216] border border-black/[0.1] rounded-2xl p-2 sm:p-4 overflow-hidden cursor-crosshair group shadow-inner"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -275,32 +267,23 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
             preserveAspectRatio="none"
           >
             <defs>
-              {/* Luminous Neon Filter for Median Path */}
-              <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
+              <filter id="forecastGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
 
-              {/* Gradient for 90% Confidence Corridor */}
               <linearGradient id="corridorGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FF5722" stopOpacity="0.32" />
-                <stop offset="50%" stopColor="#FF7043" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#FFA000" stopOpacity="0.04" />
+                <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.32" />
+                <stop offset="100%" stopColor="#00B4D8" stopOpacity="0.04" />
               </linearGradient>
 
-              {/* Area Gradient Under Median Curve */}
               <linearGradient id="medianAreaGlow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FF5722" stopOpacity="0.22" />
-                <stop offset="100%" stopColor="#FF5722" stopOpacity="0.00" />
+                <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.0" />
               </linearGradient>
-
-              {/* Dotted pattern for confidence background */}
-              <pattern id="forecastDots" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="0.75" fill="#FF5722" fillOpacity="0.2" />
-              </pattern>
             </defs>
 
             {/* Horizontal Dashed Y-Axis Grid Lines & Labels */}
@@ -324,38 +307,24 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
                     fill="#6B7280" 
                     fontSize="10" 
                     fontFamily="monospace"
-                    fontWeight="600"
                   >
-                    ${val >= 1000 || val <= -1000 ? `${(val / 1000).toFixed(0)}k` : val.toFixed(0)}
+                    {activeCurrency === 'INR' ? `₹${(val * 83 / 1000).toFixed(0)}k` : `$${(val / 1000).toFixed(0)}k`}
                   </text>
                 </g>
               );
             })}
 
-            {/* Zero Baseline Warning Line if negative bounds exist */}
+            {/* Zero Baseline Line if negative */}
             {minVal < 0 && (
-              <g>
-                <line 
-                  x1={paddingLeft} 
-                  y1={getY(0)} 
-                  x2={svgWidth - paddingRight} 
-                  y2={getY(0)} 
-                  stroke="#EF4444" 
-                  strokeWidth="1.5" 
-                  strokeDasharray="4 4" 
-                />
-                <text 
-                  x={svgWidth - paddingRight - 4} 
-                  y={getY(0) - 6} 
-                  textAnchor="end" 
-                  fill="#EF4444" 
-                  fontSize="9" 
-                  fontFamily="monospace"
-                  fontWeight="bold"
-                >
-                  $0 Zero Cash Threshold
-                </text>
-              </g>
+              <line 
+                x1={paddingLeft} 
+                y1={getY(0)} 
+                x2={svgWidth - paddingRight} 
+                y2={getY(0)} 
+                stroke="#EF4444" 
+                strokeWidth="1.5" 
+                strokeDasharray="4 4" 
+              />
             )}
 
             {/* Vertical Date Grid Guidelines */}
@@ -385,237 +354,121 @@ export default function ForecastView({ forecastData, onHorizonChange, currentHor
 
             {/* 90% Confidence Corridor Area */}
             {bandPolygon && (
-              <>
-                <path 
-                  d={bandPolygon} 
-                  fill="url(#corridorGradient)" 
-                  stroke="#FF5722" 
-                  strokeWidth="0.8" 
-                  strokeOpacity="0.45" 
-                  className="transition-all duration-300"
-                />
-                <path 
-                  d={bandPolygon} 
-                  fill="url(#forecastDots)" 
-                  className="transition-all duration-300"
-                />
-              </>
+              <path 
+                d={bandPolygon} 
+                fill="url(#corridorGradient)" 
+                stroke="#00E5FF" 
+                strokeWidth="0.8" 
+                strokeOpacity="0.5" 
+              />
             )}
 
-            {/* Glowing Area Under Median Path */}
+            {/* Area Under Median Curve */}
             {areaUnderMedian && (
               <path 
                 d={areaUnderMedian} 
                 fill="url(#medianAreaGlow)" 
-                className="transition-all duration-300"
               />
             )}
 
-            {/* Expected Median Path (Smooth Spline with Neon Stroke) */}
+            {/* Median Spline Path */}
             {medianSpline && (
               <path 
                 d={medianSpline} 
                 fill="none" 
-                stroke="#FF5722" 
+                stroke="#00E5FF" 
                 strokeWidth="3.2" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
-                filter="url(#neonGlow)"
+                filter="url(#forecastGlow)"
                 className="animate-draw-line"
               />
             )}
 
-            {/* Active Hover Crosshair & Indicator */}
+            {/* Active Hover Crosshair */}
             {hoveredIdx !== null && activePoint && (
               <g>
-                {/* Vertical Laser Scrubber Line */}
                 <line 
                   x1={mousePos.x} 
                   y1={paddingTop} 
                   x2={mousePos.x} 
                   y2={svgHeight - paddingBottom} 
-                  stroke="#FF5722" 
+                  stroke="#00E5FF" 
                   strokeWidth="1.5" 
                   strokeDasharray="4 4" 
-                  className="animate-pulse"
                 />
-
-                {/* Upper Bound Node */}
-                <circle 
-                  cx={mousePos.x} 
-                  cy={getY(activePoint.upper_bound_90)} 
-                  r="3.5" 
-                  fill="#FFA000" 
-                  stroke="#FFFFFF" 
-                  strokeWidth="1.5" 
-                />
-
-                {/* Lower Bound Node */}
-                <circle 
-                  cx={mousePos.x} 
-                  cy={getY(activePoint.lower_bound_90)} 
-                  r="3.5" 
-                  fill="#FF3D00" 
-                  stroke="#FFFFFF" 
-                  strokeWidth="1.5" 
-                />
-
-                {/* Glowing Active Median Node */}
-                <circle 
-                  cx={mousePos.x} 
-                  cy={mousePos.y} 
-                  r="7" 
-                  fill="#FF5722" 
-                  fillOpacity="0.3" 
-                  className="animate-ping"
-                />
-                <circle 
-                  cx={mousePos.x} 
-                  cy={mousePos.y} 
-                  r="5" 
-                  fill="#FF5722" 
-                  stroke="#FFFFFF" 
-                  strokeWidth="2.5" 
-                />
+                <circle cx={mousePos.x} cy={mousePos.y} r="5" fill="#00E5FF" stroke="#FFFFFF" strokeWidth="2.5" />
               </g>
             )}
           </svg>
 
-          {/* Floating Dynamic Tooltip Following Active Hover Scrubber */}
+          {/* Floating Tooltip */}
           {hoveredIdx !== null && activePoint && (
             <div 
-              className="pointer-events-none absolute top-4 right-4 sm:top-5 sm:right-6 bg-[#13151D]/95 border border-[#FF5722]/60 backdrop-blur-md text-white rounded-2xl p-3.5 shadow-2xl text-xs min-w-[210px] animate-dropdown z-30"
+              className="pointer-events-none absolute top-4 right-4 bg-black/90 border border-teal-500/50 backdrop-blur-md text-white rounded-2xl p-3 shadow-2xl text-xs z-30"
             >
-              <div className="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
-                <span className="font-bold text-[#FF5722] flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Day {activePoint.day_offset} ({activePoint.day_offset === 0 ? 'Today' : `+${activePoint.day_offset} Days`})
-                </span>
-                <span className="text-[10px] text-zinc-400 font-mono">90% CQR</span>
+              <div className="font-bold text-teal-400 mb-1">
+                Day {activePoint.day_offset} ({activePoint.day_offset === 0 ? 'Today' : `+${activePoint.day_offset} Days`})
               </div>
-
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#9CA3AF]">Projected Balance:</span>
-                  <span className="font-mono font-bold text-white text-sm">
-                    ${activePoint.median_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-[#6B7280]">Optimistic (90%):</span>
-                  <span className="font-mono font-semibold text-emerald-400">
-                    ${activePoint.upper_bound_90.toLocaleString('en-US', { minimumFractionDigits: 0 })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-[#6B7280]">Stress Scenario:</span>
-                  <span className={`font-mono font-semibold ${activePoint.lower_bound_90 < 0 ? 'text-red-400' : 'text-zinc-300'}`}>
-                    ${activePoint.lower_bound_90.toLocaleString('en-US', { minimumFractionDigits: 0 })}
-                  </span>
-                </div>
+              <div className="text-[11px] text-zinc-300">
+                Expected: <span className="text-white font-bold font-mono">{formatMoney(activePoint.median_balance, activeCurrency, true)}</span>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Burn Rate & Runway Metrics Grid with SpotlightCard & Progress Visualizations */}
-      <AnimatedContent distance={20} duration={0.4} stagger={0.1}>
+      {/* Burn Rate & Runway Metrics Grid */}
+      <AnimatedContent distance={20} duration={0.4} stagger={0.08}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           
-          {/* Card 1: Outflow Rate */}
-          <SpotlightCard 
-            spotlightColor="rgba(255, 87, 34, 0.16)" 
-            className="p-5 text-white flex flex-col justify-between"
-          >
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
             <div>
-              <div className="flex items-center justify-between text-xs text-[#9CA3AF] mb-2">
+              <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
                 <span className="font-semibold">Average Daily Outflow</span>
-                <div className="w-7 h-7 rounded-lg bg-[#FF5722]/15 text-[#FF5722] flex items-center justify-center">
-                  <DollarSign className="w-4 h-4" />
-                </div>
+                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
               </div>
-              <div className="text-2xl font-extrabold text-white font-mono tabular-nums">
-                ${burnRate.toFixed(2)} <span className="text-xs font-normal text-[#6B7280]">/ day</span>
+              <div className="text-2xl font-extrabold text-zinc-900 font-mono">
+                {formatMoney(rawBurnRate, activeCurrency, true)} <span className="text-xs font-normal text-zinc-400">/ day</span>
               </div>
-              <p className="text-[11px] text-[#6B7280] mt-1">Calculated over past 90 days recurring activity</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Calculated over past 90 days recurring activity</p>
             </div>
+          </div>
 
-            {/* Spark Indicator Bar */}
-            <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-[#9CA3AF]">
-              <span className="text-[11px]">Trend: -4.2% vs last month</span>
-              <span className="text-emerald-400 font-bold flex items-center text-[11px]">
-                <ArrowDownRight className="w-3.5 h-3.5" /> Frugal
-              </span>
-            </div>
-          </SpotlightCard>
-
-          {/* Card 2: Zero-Income Runway */}
-          <SpotlightCard 
-            spotlightColor="rgba(16, 185, 129, 0.16)" 
-            className="p-5 text-white flex flex-col justify-between"
-          >
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
             <div>
-              <div className="flex items-center justify-between text-xs text-[#9CA3AF] mb-2">
+              <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
                 <span className="font-semibold">Zero-Income Runway</span>
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
-                  <Calendar className="w-4 h-4" />
-                </div>
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               </div>
-              <div className="text-2xl font-extrabold text-white font-mono tabular-nums">
+              <div className="text-2xl font-extrabold text-zinc-900 font-mono">
                 228 Days
               </div>
-              <p className="text-[11px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
+              <p className="text-[11px] text-emerald-600 mt-1 font-semibold flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Exceeds 6-month safety benchmark (180d)
               </p>
             </div>
+          </div>
 
-            {/* Runway Progress Fill */}
-            <div className="mt-4 pt-3 border-t border-white/[0.06]">
-              <div className="w-full bg-[#181A22] h-2 rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
-                <div 
-                  className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-700 shadow-sm"
-                  style={{ width: '85%' }}
-                ></div>
-              </div>
-            </div>
-          </SpotlightCard>
-
-          {/* Card 3: Solvency Health Score */}
-          <SpotlightCard 
-            spotlightColor="rgba(255, 87, 34, 0.16)" 
-            className="p-5 text-white flex flex-col justify-between"
-          >
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
             <div>
-              <div className="flex items-center justify-between text-xs text-[#9CA3AF] mb-2">
+              <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
                 <span className="font-semibold">Solvency Health Score</span>
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="text-2xl font-extrabold text-white font-mono tabular-nums flex items-baseline gap-2">
-                <span>96 / 100</span>
-                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
                   AAA Rating
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-400 mt-1 font-semibold">Top tier resilience & low shock vulnerability</p>
-            </div>
-
-            {/* Health Meter Bar */}
-            <div className="mt-4 pt-3 border-t border-white/[0.06]">
-              <div className="w-full bg-[#181A22] h-2 rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
-                <div 
-                  className="bg-gradient-to-r from-[#FF5722] via-[#FFA000] to-emerald-400 h-full rounded-full transition-all duration-700"
-                  style={{ width: '96%' }}
-                ></div>
+              <div className="text-2xl font-extrabold text-zinc-900 font-mono">
+                96 / 100
               </div>
+              <p className="text-[11px] text-emerald-600 mt-1 font-semibold">Top tier resilience & low shock vulnerability</p>
             </div>
-          </SpotlightCard>
+          </div>
 
         </div>
       </AnimatedContent>
+
     </div>
   );
 }

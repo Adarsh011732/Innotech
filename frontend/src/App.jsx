@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
+import Navbar from './components/Navbar';
 import Overview from './components/Overview';
 import ForecastView from './components/ForecastView';
 import TransactionsView from './components/TransactionsView';
@@ -9,13 +8,16 @@ import SimulatorView from './components/SimulatorView';
 import XaiView from './components/XaiView';
 import RecurringView from './components/RecurringView';
 import CategoryOverrideModal from './components/CategoryOverrideModal';
+import LoginPage from './components/LoginPage';
+import { INDIAN_PERSONAS } from './utils/currency';
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [currentPersona, setCurrentPersona] = useState('salaried');
+  const [activeCurrency, setActiveCurrency] = useState('INR'); // Default Indian Rupee
+  const [currentPersona, setCurrentPersona] = useState('salaried'); // Default Rahul Sharma
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Core Data States
   const [accountsSummary, setAccountsSummary] = useState(null);
@@ -110,12 +112,13 @@ export default function App() {
   // Persona Switch Handler
   const handlePersonaChange = async (newPersona) => {
     setCurrentPersona(newPersona);
-    showToast(`Loading ${newPersona.toUpperCase()} persona & retraining models...`);
+    const personaObj = INDIAN_PERSONAS[newPersona] || INDIAN_PERSONAS.salaried;
+    showToast(`Loading profile for ${personaObj.name} (${personaObj.location})...`);
     try {
       const res = await fetch(`/api/data/seed/${newPersona}`, { method: 'POST' });
       if (res.ok) {
         await loadAllData();
-        showToast(`Active Profile: ${newPersona.toUpperCase()}`, 'success');
+        showToast(`Active Profile: ${personaObj.name}`, 'success');
       }
     } catch (e) {
       showToast('Error switching profile', 'danger');
@@ -124,7 +127,7 @@ export default function App() {
 
   // Reset Data Handler
   const handleResetData = async () => {
-    showToast('Resetting data to baseline...');
+    showToast('Synchronizing financial feeds to baseline...');
     await handlePersonaChange(currentPersona);
   };
 
@@ -160,32 +163,50 @@ export default function App() {
     showToast(`Strategy "${profileTitle}" activated!`, 'success');
   };
 
+  // Login handler from LoginPage
+  const handleLogin = (personaKey, currency) => {
+    setCurrentPersona(personaKey);
+    setActiveCurrency(currency);
+    setIsLoggedIn(true);
+    const p = INDIAN_PERSONAS[personaKey] || INDIAN_PERSONAS.salaried;
+    showToast(`Welcome back, ${p.name}!`, 'success');
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    showToast('Signed out of financial cockpit.');
+  };
+
+  // If user is not logged in, show split-screen LoginPage with animated Piggy Bank
+  if (!isLoggedIn) {
+    return (
+      <LoginPage 
+        onLogin={handleLogin}
+        activeCurrency={activeCurrency}
+        onCurrencyChange={setActiveCurrency}
+      />
+    );
+  }
+
   return (
-    <div className="flex w-screen h-screen bg-[#08090C] text-white overflow-hidden font-sans">
-      {/* Sidebar (Fintrixity navigation) */}
-      <Sidebar 
+    <div className="flex flex-col w-screen h-screen bg-[#F4F6FA] text-zinc-900 overflow-hidden font-sans">
+      
+      {/* Top Horizontal Navbar from image.png */}
+      <Navbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        txCount={transactions.length}
-        isMobileOpen={isMobileOpen}
-        setIsMobileOpen={setIsMobileOpen}
+        activeCurrency={activeCurrency}
+        onCurrencyChange={setActiveCurrency}
+        currentPersona={currentPersona}
+        onPersonaChange={handlePersonaChange}
+        onLogout={handleLogout}
+        onResetData={handleResetData}
+        isRefreshing={isRefreshing}
       />
 
       {/* Main Viewport Container */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Top Header */}
-        <Header 
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          currentPersona={currentPersona}
-          onPersonaChange={handlePersonaChange}
-          onResetData={handleResetData}
-          isRefreshing={isRefreshing}
-          stressData={stressData}
-          onOpenMobileMenu={() => setIsMobileOpen(true)}
-        />
-
-        {/* Tab Viewport */}
+      <main className="flex-1 overflow-hidden flex flex-col">
         {activeTab === 'dashboard' && (
           <Overview 
             accountsSummary={accountsSummary}
@@ -195,6 +216,8 @@ export default function App() {
             onResetData={handleResetData}
             onOpenOverrideModal={(tx) => setSelectedTxForOverride(tx)}
             setActiveTab={setActiveTab}
+            activeCurrency={activeCurrency}
+            currentPersona={currentPersona}
           />
         )}
 
@@ -203,6 +226,7 @@ export default function App() {
             forecastData={forecastData}
             onHorizonChange={handleHorizonChange}
             currentHorizon={currentHorizon}
+            activeCurrency={activeCurrency}
           />
         )}
 
@@ -210,6 +234,7 @@ export default function App() {
           <TransactionsView 
             transactions={transactions}
             onOpenOverrideModal={(tx) => setSelectedTxForOverride(tx)}
+            activeCurrency={activeCurrency}
           />
         )}
 
@@ -217,23 +242,27 @@ export default function App() {
           <GoalsView 
             goalData={goalsData}
             onApplyRecourse={handleApplyRecourse}
+            activeCurrency={activeCurrency}
           />
         )}
 
         {activeTab === 'recurring' && (
           <RecurringView 
             accountsSummary={accountsSummary}
+            activeCurrency={activeCurrency}
           />
         )}
 
         {activeTab === 'simulator' && (
-          <SimulatorView />
+          <SimulatorView 
+            activeCurrency={activeCurrency}
+          />
         )}
 
         {activeTab === 'xai' && (
           <XaiView />
         )}
-      </div>
+      </main>
 
       {/* 1-Click Category Override Modal */}
       {selectedTxForOverride && (
@@ -241,13 +270,14 @@ export default function App() {
           tx={selectedTxForOverride}
           onClose={() => setSelectedTxForOverride(null)}
           onSave={handleSaveOverride}
+          activeCurrency={activeCurrency}
         />
       )}
 
-      {/* Toast Notification */}
+      {/* Toast Notification Pill */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-[#14161E] border border-[#FF5722]/50 text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-[#FF5722]/25 z-50 flex items-center gap-3 animate-dropdown text-xs font-bold">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]"></span>
+        <div className="fixed bottom-6 right-6 bg-zinc-900 text-white px-5 py-3 rounded-full shadow-2xl z-50 flex items-center gap-2.5 animate-dropdown text-xs font-semibold">
+          <span className="w-2 h-2 rounded-full bg-teal-400"></span>
           <span>{toastMessage.text}</span>
         </div>
       )}

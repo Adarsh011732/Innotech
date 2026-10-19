@@ -1,34 +1,24 @@
 import React, { useState } from 'react';
 import { 
-  Wallet, 
-  Calculator, 
   TrendingUp, 
-  ArrowRight, 
-  MoreHorizontal, 
-  RotateCcw, 
-  ChevronDown, 
-  Search, 
-  SlidersHorizontal, 
   ArrowUpRight, 
-  Coffee, 
-  ShoppingBag, 
-  Tv, 
-  Gamepad2, 
-  Car, 
-  Home, 
-  DollarSign, 
+  ArrowDownRight, 
+  Sparkles, 
   Plus, 
-  Edit3, 
+  SlidersHorizontal, 
+  ChevronRight, 
+  Search, 
+  HelpCircle, 
   CreditCard, 
-  X,
-  Sparkles
+  Wallet,
+  Activity,
+  Layers,
+  CheckCircle,
+  MoreHorizontal
 } from 'lucide-react';
-
-import SpotlightCard from './reactbits/SpotlightCard';
-import BlurText from './reactbits/BlurText';
-import AnimatedContent from './reactbits/AnimatedContent';
 import CountUp from './reactbits/CountUp';
-import ShinyText from './reactbits/ShinyText';
+import AnimatedContent from './reactbits/AnimatedContent';
+import { formatMoney, getConvertedValue, INDIAN_PERSONAS } from '../utils/currency';
 
 export default function Overview({ 
   accountsSummary, 
@@ -37,580 +27,586 @@ export default function Overview({
   transactions = [], 
   onResetData, 
   onOpenOverrideModal,
-  setActiveTab 
+  setActiveTab,
+  activeCurrency = 'INR',
+  currentPersona = 'salaried'
 }) {
-  const [selectedMonth, setSelectedMonth] = useState('This Month');
-  const [cashflowPeriod, setCashflowPeriod] = useState('yearly');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [hoveredBarIndex, setHoveredBarIndex] = useState(2); // March highlighted by default
-  const [showAddWalletModal, setShowAddWalletModal] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState('overview');
+  const [activeTimeframe, setActiveTimeframe] = useState('1M');
+  const [hoveredBarIndex, setHoveredBarIndex] = useState(3);
+  const [showAiModal, setShowAiModal] = useState(false);
 
-  // Dynamic values from backend API with seamless defaults matching image.png
-  const liquidCash = accountsSummary?.total_liquid_cash ?? 28520.30;
-  const savingsBalance = accountsSummary?.accounts?.find(a => a.account_type === 'savings')?.balance ?? 24800.45;
-  const netWorth = accountsSummary?.net_worth ?? 70120.78;
+  const persona = INDIAN_PERSONAS[currentPersona] || INDIAN_PERSONAS.salaried;
 
-  // Filter transactions
-  const filteredTxs = (transactions || []).filter(tx => {
-    const matchesSearch = tx.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          tx.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat = !categoryFilter || tx.category === categoryFilter;
-    return matchesSearch && matchesCat;
-  });
-
-  // Monthly Bars (Jan - Jul from image.png)
+  // Monthly Cash Flow Bar Data (modeled from the reference image)
   const barData = [
-    { month: 'Jan', height: '52%', cashflow: '$28,450.00', inflow: '+$5,200.00', date: 'Jan 28, 2026' },
-    { month: 'Feb', height: '44%', cashflow: '$24,100.00', inflow: '+$3,800.00', date: 'Feb 24, 2026' },
-    { month: 'Mar', height: '88%', cashflow: '$33,847.00', inflow: '-$7,456.00', date: 'July 23, 2026', isHighlight: true },
-    { month: 'Apr', height: '38%', cashflow: '$19,800.00', inflow: '+$4,500.00', date: 'Apr 20, 2026' },
-    { month: 'May', height: '65%', cashflow: '$38,200.00', inflow: '+$8,900.00', date: 'May 18, 2026' },
-    { month: 'Jun', height: '48%', cashflow: '$29,400.00', inflow: '+$6,100.00', date: 'Jun 22, 2026' },
-    { month: 'Jul', height: '58%', cashflow: '$34,600.00', inflow: '+$7,200.00', date: 'Jul 26, 2026' },
+    { period: 'Sep', height: '42%', value: 18500, label: 'Sep 25, 2026' },
+    { period: 'Oct', height: '65%', value: 24200, label: 'Oct 25, 2026' },
+    { period: 'Nov', height: '54%', value: 21000, label: 'Nov 25, 2026' },
+    { period: 'Dec', height: '88%', value: 35420, label: 'Dec 25, 2026' }, // Highlighted active
+    { period: 'Jan', height: '58%', value: 22800, label: 'Jan 25, 2027' },
+    { period: 'Feb', height: '72%', value: 28400, label: 'Feb 25, 2027' },
+    { period: 'Mar', height: '48%', value: 19600, label: 'Mar 25, 2027' },
   ];
 
-  const getMerchantIcon = (category, desc = '') => {
-    if (desc.toLowerCase().includes('software') || desc.toLowerCase().includes('license')) {
-      return (
-        <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center font-black text-xs">
-          A
-        </div>
-      );
-    }
-    switch (category) {
-      case 'Dining & Takeout':
-        return <div className="w-8 h-8 rounded-full bg-[#FF5722]/20 text-[#FF5722] flex items-center justify-center"><Coffee className="w-4 h-4" /></div>;
-      case 'Groceries':
-        return <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><ShoppingBag className="w-4 h-4" /></div>;
-      case 'Subscriptions':
-        return <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center"><Tv className="w-4 h-4" /></div>;
-      case 'Entertainment':
-        return <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center"><Gamepad2 className="w-4 h-4" /></div>;
-      case 'Transportation':
-        return <div className="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center"><Car className="w-4 h-4" /></div>;
-      case 'Housing & Rent':
-        return <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center"><Home className="w-4 h-4" /></div>;
-      default:
-        return <div className="w-8 h-8 rounded-full bg-[#FF5722]/20 text-[#FF5722] flex items-center justify-center"><DollarSign className="w-4 h-4" /></div>;
-    }
-  };
+  const activeBar = barData[hoveredBarIndex] || barData[3];
 
-  const activeBar = barData[hoveredBarIndex] || barData[2];
+  // Baseline net balance
+  const rawTotalBalance = accountsSummary?.total_balance ?? 25000.69;
+  const totalBalanceDisplay = formatMoney(rawTotalBalance, activeCurrency);
+
+  // Indian merchants for the high-contrast Recent Activity module
+  const recentActivitiesList = [
+    {
+      id: 1,
+      name: 'Zerodha Nifty 50 SIP',
+      subtext: 'Auto Mutual Fund Debit',
+      amount: activeCurrency === 'INR' ? 15000 : 180,
+      isIncome: false,
+      gain: '+14.2%',
+      category: 'Investments',
+      color: 'bg-emerald-500',
+      sparkline: [20, 35, 45, 60, 50, 75, 90]
+    },
+    {
+      id: 2,
+      name: 'Employer Salary Deposit',
+      subtext: 'Monthly Payroll ACH',
+      amount: activeCurrency === 'INR' ? persona.salaryMonthly : persona.salaryMonthly / 83,
+      isIncome: true,
+      gain: 'Credited',
+      category: 'Income',
+      color: 'bg-teal-500',
+      sparkline: [30, 40, 50, 60, 70, 80, 95]
+    },
+    {
+      id: 3,
+      name: 'Koramangala Residency',
+      subtext: 'Monthly Rent Payment',
+      amount: activeCurrency === 'INR' ? 24500 : 295,
+      isIncome: false,
+      gain: 'Scheduled',
+      category: 'Housing',
+      color: 'bg-indigo-500',
+      sparkline: [60, 50, 55, 40, 45, 30, 20]
+    },
+    {
+      id: 4,
+      name: 'Swiggy Gourmet Orders',
+      subtext: 'UPI Instant Debit',
+      amount: activeCurrency === 'INR' ? 840 : 10.50,
+      isIncome: false,
+      gain: '-2.4%',
+      category: 'Dining',
+      color: 'bg-amber-500',
+      sparkline: [30, 45, 60, 35, 50, 40, 25]
+    },
+    {
+      id: 5,
+      name: 'Blinkit Instant Groceries',
+      subtext: 'UPI Quick Pay',
+      amount: activeCurrency === 'INR' ? 1420 : 17.20,
+      isIncome: false,
+      gain: '-1.1%',
+      category: 'Groceries',
+      color: 'bg-yellow-500',
+      sparkline: [25, 30, 45, 40, 55, 45, 35]
+    }
+  ];
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#08090C] relative">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F4F6FA] text-zinc-900">
       
-      {/* Upper Half Ambient Orange Glow (Confined Strictly to Top Section) */}
-      <div className="pointer-events-none absolute top-0 left-1/4 right-1/4 h-[340px] bg-[#FF5722]/12 blur-[130px] rounded-full -translate-y-1/3"></div>
-
-      {/* Title Row with React Bits BlurText */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <BlurText 
-              text="Overview" 
-              delay={80} 
-              blur={6} 
-              className="text-white font-extrabold" 
-            />
-            <span className="w-2 h-2 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]"></span>
+      {/* Subheader Row: Page Title + Tab Pills + Action Buttons (Exact from image.png) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        
+        {/* Left: Title + Overview/Holding switch pills */}
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+            Portfolio
           </h1>
-          <p className="text-xs text-[#9CA3AF] mt-0.5">Here is the summary of overall data</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#14161E] border border-[#232634] text-white text-xs font-semibold px-3.5 py-2 rounded-xl cursor-pointer hover:bg-[#1E202B] hover:border-[#FF5722]/40 transition-all btn-interactive">
-            <span>{selectedMonth}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-[#9CA3AF]" />
+          
+          <div className="flex items-center bg-white p-1 rounded-full border border-black/[0.05] shadow-sm">
+            <button
+              onClick={() => setActiveSubTab('overview')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeSubTab === 'overview'
+                  ? 'bg-zinc-900 text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-900'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('transactions')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeSubTab === 'activity'
+                  ? 'bg-zinc-900 text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-900'
+              }`}
+            >
+              Activity
+            </button>
           </div>
+        </div>
+
+        {/* Right Action Pills */}
+        <div className="flex items-center gap-2.5">
           <button 
-            onClick={onResetData}
-            className="flex items-center gap-2 bg-[#14161E] border border-[#232634] text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-[#1E202B] hover:border-[#FF5722]/40 transition-all active:scale-95 btn-interactive"
+            onClick={() => setActiveTab('forecast')}
+            className="flex items-center gap-2 bg-white hover:bg-zinc-50 border border-black/[0.06] text-zinc-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm transition-all active:scale-95 btn-interactive"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-[#9CA3AF]" />
-            <span>Reset Data</span>
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Invest sign</span>
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('transactions')}
+            className="flex items-center gap-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-full shadow-md transition-all active:scale-95 btn-interactive"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add</span>
           </button>
         </div>
       </div>
 
-      {/* Top 3 Metric Cards with React Bits SpotlightCard & CountUp & AnimatedContent */}
-      <AnimatedContent distance={25} duration={0.5} stagger={0.1}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {/* Row 1: 4 Sleek Rounded Cards from image.png */}
+      <AnimatedContent distance={20} duration={0.4} stagger={0.08}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           
-          {/* Card 1: "My balance" - VIBRANT ORANGE GRADIENT with React Bits Spotlight & CountUp */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-tr from-[#FF3D00] via-[#FF5722] to-[#FFA000] p-5 sm:p-6 text-white shadow-xl shadow-[#FF5722]/30 flex flex-col justify-between min-h-[175px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#FF5722]/50 group">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
-                  <Wallet className="w-4 h-4 text-[#FF5722]" />
+          {/* Card 1: HDFC Bank / Checking (Coinbase style) */}
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-md transition-all card-interactive group">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-800">
+                  ●
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">My balance</h3>
-                  <p className="text-[11px] text-white/80">Wallet Overview & Spending</p>
-                </div>
+                <span className="text-xs font-bold text-zinc-700">HDFC Primary A/c</span>
               </div>
-              <button className="text-white/70 hover:text-white">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-            </div>
 
-            <div className="flex items-baseline justify-between my-3">
-              <div className="text-3xl font-extrabold tracking-tight">
-                <CountUp to={liquidCash} decimals={2} duration={1.2} />
-              </div>
-              <div className="bg-white text-[#111215] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-                <span>+1.5%</span>
-                <ArrowUpRight className="w-3 h-3 stroke-[3]" />
+              <div className="flex items-baseline gap-2 mb-3">
+                <div className="text-xl sm:text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
+                  {formatMoney(42.50 * 300, activeCurrency, false)}
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  ↗ +5.99
+                </span>
+                <span className="text-[10px] text-zinc-400 ml-auto">56s ago</span>
               </div>
             </div>
 
-            <button 
-              onClick={() => setActiveTab('transactions')}
-              className="flex items-center justify-between text-xs font-semibold text-white/90 hover:text-white pt-2.5 border-t border-white/20 transition-all group-hover:translate-x-0.5"
-            >
-              <span>See details</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {/* Inner Dark Container with Line Graph (from image.png) */}
+            <div className="bg-[#14151B] rounded-2xl p-3 text-white relative h-24 flex flex-col justify-between overflow-hidden shadow-inner">
+              <svg viewBox="0 0 100 45" className="w-full h-full overflow-visible">
+                <path 
+                  d="M 5,28 L 20,24 L 35,32 L 50,18 L 65,24 L 80,12 L 95,20" 
+                  fill="none" 
+                  stroke="#FFFFFF" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <circle cx="80" cy="12" r="3.5" fill="#FFFFFF" />
+                <line x1="80" y1="12" x2="80" y2="40" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="2 2" strokeOpacity="0.4" />
+              </svg>
+              <div className="absolute bottom-2 right-3 text-right">
+                <span className="text-[10px] font-mono text-zinc-300 font-bold block">{activeCurrency === 'INR' ? '₹25,000' : '$25.00'}</span>
+                <span className="text-[8px] text-zinc-500 font-mono">Fri, Dec 31</span>
+              </div>
+            </div>
           </div>
 
-          {/* Card 2: "Savings account" - React Bits SpotlightCard */}
-          <SpotlightCard 
-            spotlightColor="rgba(255, 87, 34, 0.28)" 
-            className="flex flex-col justify-between min-h-[175px] p-5 sm:p-6"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
-                  <Calculator className="w-4 h-4 text-[#111215]" />
+          {/* Card 2: Zerodha Mutual Funds (Trust wallet cyan style) */}
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-md transition-all card-interactive group">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center text-xs font-bold text-teal-600">
+                  ✦
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Savings account</h3>
-                  <p className="text-[11px] text-[#9CA3AF]">Steady Growth Savings</p>
-                </div>
+                <span className="text-xs font-bold text-zinc-700">Zerodha Growth SIP</span>
               </div>
-              <button className="text-[#6B7280] hover:text-white">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-            </div>
 
-            <div className="flex items-baseline justify-between my-3">
-              <div className="text-3xl font-extrabold tracking-tight text-white">
-                <CountUp to={savingsBalance} decimals={2} duration={1.2} />
-              </div>
-              <div className="text-[11px] font-extrabold flex items-center gap-0.5">
-                <ShinyText text="+3.2% ↑" speed={2.5} />
+              <div className="flex items-baseline gap-2 mb-3">
+                <div className="text-xl sm:text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
+                  {formatMoney(56.20 * 300, activeCurrency, false)}
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  ↗ +5.99
+                </span>
+                <span className="text-[10px] text-zinc-400 ml-auto">56s ago</span>
               </div>
             </div>
 
-            <button 
-              onClick={() => setActiveTab('goals')}
-              className="flex items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-white pt-2.5 border-t border-[#232634] transition-all group-hover:translate-x-0.5"
-            >
-              <span>View summary</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </SpotlightCard>
-
-          {/* Card 3: "Investment portfolio" - React Bits SpotlightCard */}
-          <SpotlightCard 
-            spotlightColor="rgba(255, 87, 34, 0.28)" 
-            className="flex flex-col justify-between min-h-[175px] p-5 sm:p-6"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md">
-                  <TrendingUp className="w-4 h-4 text-[#111215]" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Investment portfolio</h3>
-                  <p className="text-[11px] text-[#9CA3AF]">Track Your Wealth Growth</p>
-                </div>
+            {/* Inner Cyan/Teal Gradient Container with Bars (from image.png) */}
+            <div className="bg-gradient-to-tr from-[#00E5FF] to-[#00B4D8] rounded-2xl p-3 text-white relative h-24 flex items-end justify-between overflow-hidden shadow-inner">
+              <div className="flex items-end gap-1.5 w-full h-full pb-1">
+                {[30, 45, 20, 60, 40, 75, 50, 85, 30, 65, 90, 45, 55].map((h, i) => (
+                  <div 
+                    key={i} 
+                    className={`flex-1 rounded-t-sm transition-all ${i === 8 ? 'bg-white shadow-sm' : 'bg-white/40'}`} 
+                    style={{ height: `${h}%` }}
+                  ></div>
+                ))}
               </div>
-              <button className="text-[#6B7280] hover:text-white">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-baseline justify-between my-3">
-              <div className="text-3xl font-extrabold tracking-tight text-white">
-                <CountUp to={netWorth} decimals={2} duration={1.2} />
-              </div>
-              <div className="text-[11px] font-extrabold flex items-center gap-0.5">
-                <ShinyText text="+4.7% ↑" speed={2.5} />
+              <div className="absolute top-2 right-3 bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[9px] font-mono text-white">
+                {activeCurrency === 'INR' ? '₹16,240' : '$16.24'}
               </div>
             </div>
+          </div>
 
-            <button 
-              onClick={() => setActiveTab('forecast')}
-              className="flex items-center justify-between text-xs font-semibold text-[#9CA3AF] hover:text-white pt-2.5 border-t border-[#232634] transition-all group-hover:translate-x-0.5"
-            >
-              <span>Analyze performance</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </SpotlightCard>
+          {/* Card 3: ICICI Emergency Fixed Deposit (Spectrum dark style) */}
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-md transition-all card-interactive group">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-800">
+                  ∞
+                </div>
+                <span className="text-xs font-bold text-zinc-700">ICICI Emergency FD</span>
+              </div>
+
+              <div className="flex items-baseline gap-2 mb-3">
+                <div className="text-xl sm:text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
+                  {formatMoney(82.25 * 300, activeCurrency, false)}
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  ↗ +3.99
+                </span>
+                <span className="text-[10px] text-zinc-400 ml-auto">42s ago</span>
+              </div>
+            </div>
+
+            {/* Inner Dark Spectrum Container (from image.png) */}
+            <div className="bg-[#14151B] rounded-2xl p-3 text-white relative h-24 flex items-center justify-between overflow-hidden shadow-inner">
+              <div className="flex items-center gap-1 w-full">
+                <div className="w-10 h-7 rounded-lg bg-gradient-to-r from-blue-400 to-indigo-300"></div>
+                {[...Array(20)].map((_, idx) => (
+                  <div 
+                    key={idx} 
+                    className="w-1 rounded-full bg-white/20" 
+                    style={{ height: `${14 + (idx % 4) * 4}px` }}
+                  ></div>
+                ))}
+              </div>
+              <div className="absolute top-2 right-3 text-[10px] font-mono text-zinc-300 font-bold">
+                {activeCurrency === 'INR' ? '₹20,160' : '$20.16'}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: UPI & Digital Wallet (Royal Blue style) */}
+          <div className="bg-white rounded-3xl p-5 border border-black/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-md transition-all card-interactive group">
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-xs font-bold text-blue-600">
+                  🛡
+                </div>
+                <span className="text-xs font-bold text-zinc-700">UPI & Liquid Wallet</span>
+              </div>
+
+              <div className="flex items-baseline gap-2 mb-3">
+                <div className="text-xl sm:text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
+                  {formatMoney(120.25 * 300, activeCurrency, false)}
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  ↗ +4.99
+                </span>
+                <span className="text-[10px] text-zinc-400 ml-auto">42s ago</span>
+              </div>
+            </div>
+
+            {/* Inner Royal Blue Gradient Container (from image.png) */}
+            <div className="bg-gradient-to-tr from-[#2563EB] to-[#4F46E5] rounded-2xl p-3 text-white relative h-24 flex flex-col justify-between overflow-hidden shadow-inner">
+              <svg viewBox="0 0 100 45" className="w-full h-full overflow-visible">
+                <path 
+                  d="M 5,35 L 35,32 L 60,15 L 95,12" 
+                  fill="none" 
+                  stroke="#FFFFFF" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <circle cx="60" cy="15" r="4" fill="#FFFFFF" />
+              </svg>
+              <div className="absolute top-2 right-3 bg-white text-blue-900 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold shadow-sm">
+                {activeCurrency === 'INR' ? '₹20,160' : '$20.16'}
+              </div>
+              <div className="absolute bottom-2 right-3 text-[9px] font-mono text-white/70">
+                16 Dec
+              </div>
+            </div>
+          </div>
 
         </div>
       </AnimatedContent>
 
-      {/* Middle Section: My Wallet & Cash Flow with React Bits SpotlightCards */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+      {/* Row 2: 3 Major Modules from image.png (Question of Day / Total Balance Chart / Recent Activity) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
-        {/* Left Column: My Wallet (5 cols) wrapped in SpotlightCard */}
-        <SpotlightCard 
-          spotlightColor="rgba(255, 87, 34, 0.2)" 
-          className="xl:col-span-5 flex flex-col justify-between p-5 sm:p-6"
-        >
+        {/* Module 1: AI Assistant / Question of the Day (3 cols on lg) */}
+        <div className="lg:col-span-3 bg-white rounded-3xl p-5 border border-black/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive relative overflow-hidden">
+          
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="text-base font-bold text-white">My Wallet</h2>
-              <button 
-                onClick={() => setShowAddWalletModal(true)}
-                className="bg-gradient-to-r from-[#FF5722] to-[#FF6D00] hover:from-[#F4511E] hover:to-[#FF5722] text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-md shadow-[#FF5722]/25 transition-all flex items-center gap-1 active:scale-95 btn-interactive"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add New</span>
-              </button>
+            {/* Top pill tag */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-semibold mb-4">
+              <HelpCircle className="w-3.5 h-3.5 text-zinc-500" />
+              <span>Question of the day</span>
             </div>
-            <p className="text-[11px] text-[#9CA3AF] mb-4">Today 1 USD = 122.20 BDT</p>
 
-            {/* 2x2 Wallet Cards (Exact from image.png) */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* 3D Iris / Flower Glass Graphic (exact recreation from image.png) */}
+            <div className="relative w-full h-36 flex items-center justify-center my-1">
+              <div className="absolute w-24 h-24 rounded-full bg-blue-500/20 blur-xl"></div>
+              {/* Petal illustration */}
+              <div className="relative w-28 h-28 flex items-center justify-center">
+                {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+                  <div
+                    key={deg}
+                    className="absolute w-8 h-16 rounded-full bg-gradient-to-t from-blue-600 via-indigo-400 to-blue-300 opacity-80 shadow-md origin-bottom"
+                    style={{ transform: `rotate(${deg}deg) translateY(-8px)` }}
+                  ></div>
+                ))}
+                <div className="w-8 h-8 rounded-full bg-white shadow-lg z-10 flex items-center justify-center text-blue-600 text-xs font-bold">
+                  ✦
+                </div>
+              </div>
+            </div>
+
+            {/* Frosted Question Card (from image.png) */}
+            <div className="bg-gradient-to-b from-blue-500/90 to-blue-600 p-4 rounded-2xl text-white shadow-lg text-center mt-2">
+              <p className="text-xs sm:text-sm font-semibold leading-snug">
+                How did my investments & savings perform over the last 3 months?
+              </p>
               
-              {/* Wallet 1: USD */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">🇺🇸</span>
-                    <span className="text-xs font-bold text-[#9CA3AF]">USD</span>
-                  </div>
-                  <MoreHorizontal className="w-3.5 h-3.5 text-[#6B7280]" />
-                </div>
-                <div className="text-sm font-extrabold text-white mb-0.5">$24,678.00</div>
-                <div className="text-[10px] text-[#6B7280] mb-2 font-medium">Limit is $10k a month</div>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full w-max">
-                  Active
-                </span>
+              <div className="flex items-center justify-center gap-2 mt-3 opacity-80 text-[10px]">
+                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">●</span>
+                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">🛡</span>
+                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">∞</span>
               </div>
-
-              {/* Wallet 2: EUR */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">🇪🇺</span>
-                    <span className="text-xs font-bold text-[#9CA3AF]">EUR</span>
-                  </div>
-                  <MoreHorizontal className="w-3.5 h-3.5 text-[#6B7280]" />
-                </div>
-                <div className="text-sm font-extrabold text-white mb-0.5">€28,345.00</div>
-                <div className="text-[10px] text-[#6B7280] mb-2 font-medium">Limit is €8k a month</div>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full w-max">
-                  Active
-                </span>
-              </div>
-
-              {/* Wallet 3: AUD */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">🇦🇺</span>
-                    <span className="text-xs font-bold text-[#9CA3AF]">AUD</span>
-                  </div>
-                  <MoreHorizontal className="w-3.5 h-3.5 text-[#6B7280]" />
-                </div>
-                <div className="text-sm font-extrabold text-white mb-0.5">$20,517.52</div>
-                <div className="text-[10px] text-[#6B7280] mb-2 font-medium">Limit is $10k a month</div>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full w-max">
-                  Active
-                </span>
-              </div>
-
-              {/* Wallet 4: GBP */}
-              <div className="bg-[#101117] border border-[#20222C] hover:border-[#FF5722]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group card-interactive">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">🇬🇧</span>
-                    <span className="text-xs font-bold text-[#9CA3AF]">GBP</span>
-                  </div>
-                  <MoreHorizontal className="w-3.5 h-3.5 text-[#6B7280]" />
-                </div>
-                <div className="text-sm font-extrabold text-white mb-0.5">£25,000.00</div>
-                <div className="text-[10px] text-[#6B7280] mb-2 font-medium">Limit is £7.5k a month</div>
-                <span className="text-[10px] font-bold text-[#9CA3AF] bg-[#1E202B] px-2 py-0.5 rounded-full w-max">
-                  Inactive
-                </span>
-              </div>
-
             </div>
           </div>
-        </SpotlightCard>
 
-        {/* Right Column: Cash Flow with SpotlightCard & Rounded Glowing Bars (7 cols) */}
-        <SpotlightCard 
-          spotlightColor="rgba(255, 87, 34, 0.2)" 
-          className="xl:col-span-7 flex flex-col justify-between p-5 sm:p-6"
-        >
+          {/* Ask AI Assistant Button */}
+          <button 
+            onClick={() => setShowAiModal(true)}
+            className="w-full bg-zinc-900 hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all btn-interactive mt-4 group"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Ask AI Assistant</span>
+          </button>
+        </div>
+
+        {/* Module 2: Total Balance & Interactive Cash Flow Bar Chart (6 cols on lg) */}
+        <div className="lg:col-span-6 bg-white rounded-3xl p-6 border border-black/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
+          
           <div>
-            <div className="flex items-center justify-between mb-2">
+            {/* Header: Total Balance + Metric Toggles */}
+            <div className="flex items-start justify-between mb-4">
               <div>
-                <span className="text-xs text-[#9CA3AF] font-medium">Cash Flow</span>
-                <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
-                  <CountUp to={540323.45} decimals={2} duration={1.5} />
+                <span className="text-xs font-bold text-zinc-500">Total balance</span>
+                <div className="text-2xl sm:text-3xl font-extrabold text-zinc-900 font-mono tracking-tight mt-0.5">
+                  <CountUp 
+                    to={getConvertedValue(rawTotalBalance, activeCurrency, true)} 
+                    decimals={2} 
+                    prefix={activeCurrency === 'INR' ? '₹' : '$'} 
+                    duration={1.2} 
+                  />
                 </div>
               </div>
 
-              {/* Monthly / Yearly Toggle (from image.png) */}
-              <div className="flex items-center bg-[#101117] border border-[#232634] p-1 rounded-xl text-xs font-semibold">
-                <button 
-                  onClick={() => setCashflowPeriod('monthly')}
-                  className={`px-3 py-1 rounded-lg transition-all ${
-                    cashflowPeriod === 'monthly' ? 'bg-[#1E202B] text-white shadow-sm' : 'text-[#9CA3AF] hover:text-white'
-                  }`}
-                >
-                  Monthly
+              {/* View Toggle Icons (from image.png) */}
+              <div className="flex items-center gap-1.5 bg-zinc-100 p-1 rounded-full">
+                <button className="w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-zinc-800 text-xs">
+                  <TrendingUp className="w-3.5 h-3.5" />
                 </button>
-                <button 
-                  onClick={() => setCashflowPeriod('yearly')}
-                  className={`px-3 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
-                    cashflowPeriod === 'yearly' ? 'bg-[#FF5722] text-white font-bold shadow-sm' : 'text-[#9CA3AF] hover:text-white'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
-                  <span>Yearly</span>
+                <button className="w-7 h-7 rounded-full hover:bg-zinc-200 flex items-center justify-center text-zinc-500 text-xs">
+                  <Activity className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            {/* Vertical Bar Chart Container */}
-            <div className="relative pt-12 pb-2">
+            {/* Interactive Bar Chart Area with Tooltip (from image.png) */}
+            <div className="relative w-full h-48 sm:h-56 flex items-end justify-between gap-3 sm:gap-4 pt-8 pb-3 px-2 border-b border-zinc-100">
               
-              {/* Dynamic Floating Tooltip over Active Bar (Exact from image.png) */}
+              {/* Tooltip on Active Bar */}
               <div 
-                className="absolute top-0 transition-all duration-300 pointer-events-none z-20"
-                style={{
-                  left: `${(hoveredBarIndex * 13.8) + 12}%`,
-                  transform: 'translateX(-50%)'
-                }}
+                className="absolute top-2 transition-all duration-200 bg-zinc-900 text-white rounded-xl px-3 py-1.5 text-xs shadow-xl z-20 pointer-events-none text-center"
+                style={{ left: `${(hoveredBarIndex / (barData.length - 1)) * 75 + 5}%` }}
               >
-                <div className="bg-[#1E202B] border border-[#333747] text-white rounded-xl px-3 py-2 text-[11px] shadow-2xl min-w-[125px]">
-                  <div className="text-[10px] text-[#9CA3AF] mb-1 font-medium">{activeBar.date}</div>
-                  <div className="flex justify-between gap-3 text-white font-bold">
-                    <span className="text-[#9CA3AF] font-normal">Cashflow</span>
-                    <span>{activeBar.cashflow}</span>
+                <div className="font-mono font-bold">{formatMoney(activeBar.value, activeCurrency, true)}</div>
+                <div className="text-[10px] text-zinc-400 font-medium">{activeBar.label}</div>
+              </div>
+
+              {/* Background Reference Lines */}
+              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
+                <div className="border-b border-dashed border-zinc-200 w-full text-[9px] text-zinc-400 font-mono">
+                  {formatMoney(35000, activeCurrency, true)}
+                </div>
+                <div className="border-b border-dashed border-zinc-200 w-full text-[9px] text-zinc-400 font-mono">
+                  {formatMoney(25000, activeCurrency, true)}
+                </div>
+                <div className="border-b border-dashed border-zinc-200 w-full text-[9px] text-zinc-400 font-mono">
+                  {formatMoney(15000, activeCurrency, true)}
+                </div>
+                <div className="border-b border-zinc-200 w-full"></div>
+              </div>
+
+              {/* Bars */}
+              {barData.map((bar, idx) => {
+                const isActive = hoveredBarIndex === idx;
+                return (
+                  <div
+                    key={bar.period}
+                    className="flex-1 flex flex-col items-center justify-end h-full z-10 cursor-pointer group"
+                    onMouseEnter={() => setHoveredBarIndex(idx)}
+                  >
+                    <div 
+                      className={`w-full max-w-[42px] rounded-t-xl transition-all duration-300 ${
+                        isActive
+                          ? 'bg-gradient-to-t from-teal-400/90 to-teal-300 shadow-md shadow-teal-500/20 scale-y-100'
+                          : 'bg-zinc-100 group-hover:bg-zinc-200'
+                      }`}
+                      style={{ height: bar.height }}
+                    ></div>
+                    <span className={`text-[11px] font-bold mt-2 transition-colors ${isActive ? 'text-zinc-900 font-extrabold' : 'text-zinc-400'}`}>
+                      {bar.period}
+                    </span>
                   </div>
-                  <div className="flex justify-between gap-3 text-white font-bold">
-                    <span className="text-[#9CA3AF] font-normal">Inflow</span>
-                    <span className={activeBar.inflow.startsWith('+') ? 'text-emerald-400' : 'text-[#FF5722]'}>
-                      {activeBar.inflow}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Timeframe selector pills (from image.png: 1W, 1M, 3M, 6M, YTD, 1Y) */}
+          <div className="flex items-center justify-between pt-4 text-xs font-semibold">
+            {['1W', '1M', '3M', '6M', 'YTD', '1Y'].map((t) => (
+              <button
+                key={t}
+                onClick={() => setActiveTimeframe(t)}
+                className={`px-3 py-1 rounded-full transition-all ${
+                  activeTimeframe === t
+                    ? 'bg-zinc-900 text-white font-bold shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+        </div>
+
+        {/* Module 3: Recent Activity (Holding style from image.png - 3 cols on lg) */}
+        <div className="lg:col-span-3 bg-[#111216] text-white rounded-3xl p-5 shadow-2xl flex flex-col justify-between card-interactive">
+          
+          <div>
+            {/* Header: Title + See all holding > */}
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/[0.08]">
+              <h2 className="text-sm font-bold text-white tracking-tight">Recent Activity</h2>
+              <button 
+                onClick={() => setActiveTab('transactions')}
+                className="text-[11px] text-zinc-400 hover:text-white font-medium flex items-center gap-0.5 transition-colors"
+              >
+                <span>See all</span>
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* List of High-Contrast Activities (from image.png Holding section) */}
+            <div className="space-y-3.5">
+              {recentActivitiesList.map((item) => (
+                <div 
+                  key={item.id} 
+                  onClick={() => setActiveTab('transactions')}
+                  className="flex items-center justify-between p-2 rounded-2xl hover:bg-white/[0.04] transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    {/* Colored Avatar */}
+                    <div className={`w-8 h-8 rounded-xl ${item.color} flex items-center justify-center font-bold text-white text-xs shadow-sm group-hover:scale-105 transition-transform`}>
+                      {item.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white group-hover:text-teal-400 transition-colors truncate max-w-[110px]">
+                        {item.name}
+                      </div>
+                      <div className="text-[10px] text-zinc-500 truncate max-w-[100px]">
+                        {item.subtext}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className={`text-xs font-mono font-bold ${item.isIncome ? 'text-emerald-400' : 'text-white'}`}>
+                      {item.isIncome ? '+' : '-'}{formatMoney(item.amount, activeCurrency, false)}
+                    </div>
+                    <span className="text-[9px] font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                      {item.gain}
                     </span>
                   </div>
                 </div>
-              </div>
-
-              {/* Y-Axis Grid Marks and Bars */}
-              <div className="flex items-end justify-between h-44 gap-2 px-2">
-                {barData.map((bar, idx) => {
-                  const isHovered = hoveredBarIndex === idx;
-                  return (
-                    <div 
-                      key={bar.month}
-                      onMouseEnter={() => setHoveredBarIndex(idx)}
-                      className="flex-1 flex flex-col items-center h-full justify-end cursor-pointer group"
-                    >
-                      {/* Bar Pillar */}
-                      <div className="w-full max-w-[42px] h-full flex items-end">
-                        <div 
-                          className={`w-full rounded-2xl relative transition-all duration-300 ${
-                            isHovered
-                              ? 'bg-gradient-to-t from-[#FFA000] via-[#FF5722] to-[#FF3D00] shadow-lg shadow-[#FF5722]/40'
-                              : 'bg-[#22242F] hover:bg-[#2D303E]'
-                          }`}
-                          style={{ height: bar.height }}
-                        >
-                          {/* Top Glowing Target Circle on Active Bar (from image.png) */}
-                          {isHovered && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full border-2 border-white bg-[#FF5722] flex items-center justify-center shadow-md animate-pulse">
-                              <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* X-Axis Month Label */}
-                      <span className={`text-xs mt-3 transition-colors ${
-                        isHovered ? 'text-white font-bold' : 'text-[#9CA3AF]'
-                      }`}>
-                        {bar.month}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              ))}
             </div>
           </div>
-        </SpotlightCard>
+
+          {/* Quick Footer Action */}
+          <div className="pt-3 border-t border-white/[0.08] mt-3 flex items-center justify-between text-[11px] text-zinc-400">
+            <span>Live Local DB Ledger</span>
+            <span className="font-mono text-teal-400 font-semibold">Verified</span>
+          </div>
+
+        </div>
 
       </div>
 
-      {/* Bottom Section: Recent Activities (Live SQLite Transaction Ledger from image.png) */}
-      <div className="bg-[#111217] border border-[#20222B] rounded-3xl p-5 sm:p-6 text-white shadow-xl relative card-interactive">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <span>Recent Activities</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-[#181A22] border border-[#2B2E3A] text-[#9CA3AF]">
-              Live Ledger
-            </span>
-          </h2>
-
-          <div className="flex items-center gap-3">
-            {/* Search Input */}
-            <div className="flex items-center bg-[#101117] border border-[#232634] rounded-xl px-3 py-1.5 text-xs text-[#9CA3AF] w-full sm:w-56 focus-within:border-[#FF5722] transition-colors">
-              <Search className="w-3.5 h-3.5 mr-2 text-[#6B7280] shrink-0" />
-              <input 
-                type="text" 
-                placeholder="Search" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent text-white outline-none w-full placeholder-[#6B7280]"
-              />
-            </div>
-
-            {/* Filter Button */}
-            <div className="relative">
-              <select 
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="bg-[#101117] border border-[#232634] text-xs text-[#9CA3AF] hover:text-white rounded-xl px-3 py-2 outline-none cursor-pointer pr-7 appearance-none"
-              >
-                <option value="">Filter =</option>
-                <option value="Dining & Takeout">Dining & Takeout</option>
-                <option value="Groceries">Groceries</option>
-                <option value="Subscriptions">Subscriptions</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Housing & Rent">Housing & Rent</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-[#6B7280] absolute right-2.5 top-3 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Transactions Table (Responsive Container) */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#20222C] text-[#6B7280]">
-                <th className="pb-3 px-3 font-semibold w-8">
-                  <input type="checkbox" className="rounded bg-[#20222C] border-none text-[#FF5722] focus:ring-0" />
-                </th>
-                <th className="pb-3 px-4 font-semibold">Activity</th>
-                <th className="pb-3 px-4 font-semibold">Order ID</th>
-                <th className="pb-3 px-4 font-semibold">Date</th>
-                <th className="pb-3 px-4 font-semibold">Time</th>
-                <th className="pb-3 px-4 font-semibold">Price</th>
-                <th className="pb-3 px-4 font-semibold">Status</th>
-                <th className="pb-3 px-4 font-semibold text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1D1F2A] text-white">
-              {filteredTxs.slice(0, 8).map((tx, idx) => {
-                const orderId = `INV_${String(tx.id || (idx + 76)).padStart(6, '0')}`;
-                const timeStr = idx % 2 === 0 ? '03:45 PM' : '11:20 AM';
-                return (
-                  <tr key={tx.id || idx} className="hover:bg-[#1A1C25] transition-colors group">
-                    <td className="py-3.5 px-3">
-                      <input type="checkbox" className="rounded bg-[#20222C] border-none text-[#FF5722] focus:ring-0" />
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        {getMerchantIcon(tx.category, tx.description)}
-                        <div>
-                          <span className="font-semibold text-white group-hover:text-[#FF5722] transition-colors">
-                            {tx.description}
-                          </span>
-                          <span className="block text-[10px] text-[#6B7280]">{tx.category}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-[#9CA3AF] text-[11px]">
-                      {orderId}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#9CA3AF] text-[11px] whitespace-nowrap">
-                      {tx.date || '17 Apr, 2026'}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#9CA3AF] text-[11px] whitespace-nowrap">
-                      {timeStr}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold">
-                      <span className={tx.amount < 0 ? 'text-white' : 'text-emerald-400'}>
-                        {tx.amount < 0 ? `-$${Math.abs(tx.amount).toFixed(2)}` : `+$${tx.amount.toFixed(2)}`}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#9CA3AF]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                        <span>Completed</span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <button 
-                        onClick={() => onOpenOverrideModal(tx)}
-                        className="p-1 rounded-lg text-[#6B7280] hover:text-[#FF5722] hover:bg-[#252835] transition-colors"
-                        title="Reclassify Category"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add New Wallet Modal */}
-      {showAddWalletModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#14161E] border border-[#232634] rounded-3xl p-6 w-full max-w-md shadow-2xl text-white animate-dropdown">
+      {/* AI Assistant Insight Modal */}
+      {showAiModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-zinc-900 border border-black/[0.08] animate-dropdown">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-[#FF5722]" />
-                <span>Link Account or Wallet</span>
-              </h3>
-              <button onClick={() => setShowAddWalletModal(false)} className="text-[#9CA3AF] hover:text-white">
-                <X className="w-5 h-5" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-teal-500 text-white flex items-center justify-center">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-zinc-900">Fintrixity AI Assistant</h3>
+              </div>
+              <button 
+                onClick={() => setShowAiModal(false)}
+                className="text-zinc-400 hover:text-zinc-700 text-sm font-bold p-1"
+              >
+                ✕
               </button>
             </div>
-            <p className="text-xs text-[#9CA3AF] mb-4">
-              Connect external bank accounts, credit cards, or foreign currency balances into your local zero-knowledge ledger.
+
+            <p className="text-xs text-zinc-600 leading-relaxed mb-4">
+              Based on your last 3 months of transaction activity in <strong>{persona.location}</strong>:
             </p>
-            <div className="space-y-3 mb-5">
-              <input 
-                type="text" 
-                placeholder="Account Name (e.g. Schwab High Yield)" 
-                className="w-full bg-[#101117] border border-[#232634] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF5722]"
-              />
-              <select className="w-full bg-[#101117] border border-[#232634] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF5722]">
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="AUD">AUD ($)</option>
-              </select>
+
+            <div className="space-y-2.5 mb-6 bg-[#F8F9FC] p-4 rounded-2xl border border-zinc-200">
+              <div className="flex justify-between text-xs">
+                <span className="text-zinc-600">Net Savings Inflow:</span>
+                <span className="font-mono font-bold text-emerald-600">
+                  {formatMoney(persona.salaryMonthly * 0.35, activeCurrency, false)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-zinc-600">SIP Investment Rate:</span>
+                <span className="font-mono font-bold text-teal-600">
+                  {formatMoney(persona.salaryMonthly * 0.15, activeCurrency, false)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-zinc-600">Solvency Safety Buffer:</span>
+                <span className="font-mono font-bold text-zinc-900">228 Days (Low Vulnerability)</span>
+              </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <button 
-                onClick={() => setShowAddWalletModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-[#9CA3AF] hover:text-white"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => setShowAddWalletModal(false)}
-                className="bg-[#FF5722] hover:bg-[#F4511E] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#FF5722]/30 active:scale-95 transition-all"
-              >
-                Save Account
-              </button>
-            </div>
+
+            <button
+              onClick={() => {
+                setShowAiModal(false);
+                setActiveTab('forecast');
+              }}
+              className="w-full bg-zinc-900 hover:bg-black text-white text-xs font-bold py-3 rounded-2xl shadow-md transition-all"
+            >
+              View Full Predictive Forecast
+            </button>
           </div>
         </div>
       )}
