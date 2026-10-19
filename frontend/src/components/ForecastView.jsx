@@ -190,7 +190,7 @@ export default function ForecastView({
   const netDrift = endingBalance - startingBalance;
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5 select-none bg-[#F4F6FA] text-zinc-900 font-sans">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5 select-none bg-[#F4F6FA] ambient-dashboard-glow text-zinc-900 font-sans">
       
       {/* Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

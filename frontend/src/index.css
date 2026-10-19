@@ -6,12 +6,43 @@
 
 :root {
   color-scheme: light;
+  
+  /* Primary Functional Palette (Fintrixity Design System) */
+  --color-blue-primary: #2563EB;
+  --color-blue-hover: #1D4ED8;
+  --color-blue-subtle: rgba(37, 99, 235, 0.08);
+
+  --color-turquoise-primary: #0F9F90;
+  --color-turquoise-accent: #35D9C5;
+  --color-turquoise-mint: #5EEAD4;
+  --color-turquoise-subtle: rgba(18, 184, 172, 0.08);
+
+  --color-purple-ai: #7C3AED;
+  --color-purple-light: #DDD6FE;
+  --color-purple-subtle: rgba(124, 58, 237, 0.08);
+
+  --color-charcoal-dark: #16171B;
+  --color-charcoal-card: #1C1D24;
+  --color-charcoal-border: rgba(255, 255, 255, 0.08);
+
+  --color-surface-white: #FFFFFF;
+  --color-surface-subtle: #F3F4F7;
+  --color-surface-muted: #E5E7EB;
+
+  --color-semantic-positive: #10B981;
+  --color-semantic-negative: #EF4444;
+
+  /* Refined Natural Depth Shadows */
+  --shadow-card-sm: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  --shadow-card-md: 0 2px 4px rgba(0, 0, 0, 0.02), 0 10px 24px -4px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 18px 36px -6px rgba(0, 0, 0, 0.07);
+  --shadow-floating: 0 20px 48px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #F4F6FA;
+  background-color: #ECEEF3;
   color: #111216;
   font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
@@ -20,18 +51,43 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth Interactive Elements - Scaleless transforms to prevent font rasterization blur */
+/* Subtle Ambient Depth Layer for Non-Flat Feeling */
+.ambient-dashboard-glow {
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(53, 217, 197, 0.045) 0%, transparent 50%),
+    radial-gradient(circle at 50% 40%, rgba(124, 58, 237, 0.025) 0%, transparent 60%);
+}
+
+/* Cohesive Standard Card Surface */
+.fintrixity-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-card-md);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.22s ease;
+}
+
+.fintrixity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Smooth Interactive Elements */
 .card-interactive {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
 .card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .btn-interactive {

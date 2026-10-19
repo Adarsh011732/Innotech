@@ -179,11 +179,11 @@ export default function SimulatorView({ activeCurrency = 'INR' }) {
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-zinc-100 mb-5">
               <h3 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-teal-600" />
+                <Zap className="w-4 h-4 text-purple-600" />
                 <span>Simulated Outcome Delta</span>
               </h3>
-              <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
-                Model Output
+              <span className="text-xs font-mono font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                AI Sensitivity Engine
               </span>
             </div>
 
@@ -246,12 +246,12 @@ export default function SimulatorView({ activeCurrency = 'INR' }) {
             </div>
           </div>
 
-          <div className="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-xs text-teal-900">
-            <div className="flex items-center gap-2 font-bold text-teal-800 mb-1">
-              <ShieldCheck className="w-4 h-4 text-teal-600" />
-              <span>Simulation Recommendation</span>
+          <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-xs text-purple-950">
+            <div className="flex items-center gap-2 font-bold text-purple-900 mb-1">
+              <ShieldCheck className="w-4 h-4 text-purple-600" />
+              <span>AI Strategic Recommendation</span>
             </div>
-            <p className="text-teal-700 leading-relaxed text-[11px]">
+            <p className="text-purple-800 leading-relaxed text-[11px]">
               {simResults.status_summary || 'Applying this spending profile maintains safe cash reserves.'}
             </p>
           </div>

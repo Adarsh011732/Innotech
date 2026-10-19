@@ -52,7 +52,7 @@ export default function GoalsView({ goalData, onApplyRecourse, activeCurrency = 
   const progressPct = Math.min(100, Math.round((goal.current_amount / goal.target_amount) * 100));
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F4F6FA] text-zinc-900">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F4F6FA] ambient-dashboard-glow text-zinc-900">
       
       {/* View Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -152,10 +152,14 @@ export default function GoalsView({ goalData, onApplyRecourse, activeCurrency = 
       <div>
         <div className="flex items-center justify-between mb-4 px-1">
           <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200/60 text-[11px] font-bold mb-1.5">
+              <Sparkles className="w-3 h-3 text-purple-600" />
+              <span>AI Algorithmic Insights</span>
+            </div>
             <h3 className="text-base font-bold text-zinc-900 tracking-tight">
-              Adjustment Options
+              Adaptive Recourse Options
             </h3>
-            <p className="text-xs text-zinc-500">AI-suggested spending alignments to guarantee goal attainment</p>
+            <p className="text-xs text-zinc-500">Intelligent spending alignments to guarantee goal attainment without sacrificing comfort</p>
           </div>
         </div>
 
@@ -164,20 +168,20 @@ export default function GoalsView({ goalData, onApplyRecourse, activeCurrency = 
             {(goal.recourse_profiles || []).map((profile) => (
               <div 
                 key={profile.profile_id}
-                className="bg-white border border-black/[0.06] rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-md transition-all card-interactive group"
+                className="bg-white border border-black/[0.06] rounded-[24px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_36px_rgba(139,92,246,0.08)] hover:-translate-y-0.5 transition-all card-interactive group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-800 flex items-center gap-1 font-mono">
-                      <Sparkles className="w-3 h-3 text-teal-600" />
-                      {Math.round(profile.feasibility_probability * 100)}% Success
+                    <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-100 flex items-center gap-1 font-mono">
+                      <Sparkles className="w-3 h-3 text-purple-600" />
+                      {Math.round(profile.feasibility_probability * 100)}% Success Probability
                     </span>
-                    <div className="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
                       <Zap className="w-3.5 h-3.5" />
                     </div>
                   </div>
 
-                  <h4 className="text-sm font-bold text-zinc-900 tracking-tight mb-2 group-hover:text-teal-600 transition-colors">
+                  <h4 className="text-sm font-bold text-zinc-900 tracking-tight mb-2 group-hover:text-purple-700 transition-colors">
                     {profile.title}
                   </h4>
                   <p className="text-xs text-zinc-500 leading-relaxed mb-4">
@@ -185,7 +189,7 @@ export default function GoalsView({ goalData, onApplyRecourse, activeCurrency = 
                   </p>
 
                   {profile.proposed_changes && (
-                    <div className="space-y-1.5 mb-4 bg-[#F8F9FC] p-3 rounded-2xl border border-zinc-200">
+                    <div className="space-y-1.5 mb-4 bg-[#F8F9FC] p-3 rounded-2xl border border-zinc-200/80">
                       <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Recommended Adjustments</div>
                       {profile.proposed_changes.map((c, i) => (
                         <div key={i} className="flex justify-between text-xs">
@@ -199,7 +203,7 @@ export default function GoalsView({ goalData, onApplyRecourse, activeCurrency = 
                   )}
 
                   {profile.revised_deadline && (
-                    <div className="bg-[#F8F9FC] p-3 rounded-2xl border border-zinc-200 mb-4 text-xs flex justify-between items-center">
+                    <div className="bg-[#F8F9FC] p-3 rounded-2xl border border-zinc-200/80 mb-4 text-xs flex justify-between items-center">
                       <span className="text-zinc-500">Projected Date: </span>
                       <span className="text-zinc-900 font-bold font-mono">{profile.revised_deadline}</span>
                     </div>
@@ -208,7 +212,7 @@ export default function GoalsView({ goalData, onApplyRecourse, activeCurrency = 
 
                 <button 
                   onClick={() => onApplyRecourse && onApplyRecourse(profile.title)}
-                  className="w-full bg-zinc-900 hover:bg-black text-white text-xs font-bold py-2.5 px-4 rounded-2xl flex items-center justify-center gap-2 transition-all btn-interactive shadow-sm group-hover:shadow-md"
+                  className="w-full bg-[#16171B] hover:bg-black text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all btn-interactive shadow-sm group-hover:shadow-md"
                 >
                   <span>Adopt Strategy</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

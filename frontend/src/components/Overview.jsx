@@ -52,7 +52,7 @@ export default function Overview({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F3F4F7] text-zinc-900">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 select-none bg-[#F3F4F7] ambient-dashboard-glow text-zinc-900">
       
       {/* Subheader: "Portfolio", Overview / Holding pills, Invest sign, + Add (Exact from image.png) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -107,12 +107,12 @@ export default function Overview({
         </div>
       </div>
 
-      {/* Row 1: 4 Sleek Cards (Exact Recreation from image.png) */}
+      {/* Row 1: 4 Sleek Account Cards */}
       <AnimatedContent distance={15} duration={0.35} stagger={0.06}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           
-          {/* Card 1: Coinbase */}
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 card-interactive group">
+          {/* Card 1: Coinbase (Charcoal surface with clean stepped line) */}
+          <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
                 <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
@@ -125,15 +125,15 @@ export default function Overview({
                 <div className="text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
                   {formatVal(42.50)}
                 </div>
-                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-mono">
                   ↗ +5.99
                 </span>
-                <span className="text-[10px] text-zinc-400 ml-auto">56 second ago</span>
+                <span className="text-[10px] text-zinc-400 ml-auto font-medium">56s ago</span>
               </div>
             </div>
 
-            {/* Inner Dark Graphic Container with Stepped Line (from image.png) */}
-            <div className="bg-[#18191E] rounded-2xl p-3 text-white relative h-28 flex flex-col justify-between overflow-hidden shadow-inner">
+            {/* Inner Dark Graphic Container with Stepped Line */}
+            <div className="bg-[#16171B] rounded-2xl p-3 text-white relative h-28 flex flex-col justify-between overflow-hidden shadow-inner border border-white/[0.06]">
               <svg viewBox="0 0 100 45" className="w-full h-full overflow-visible">
                 <path 
                   d="M 5,28 L 22,26 L 36,33 L 48,16 L 62,22 L 78,12 L 95,20" 
@@ -143,8 +143,8 @@ export default function Overview({
                   strokeLinecap="round" 
                   strokeLinejoin="round" 
                 />
-                <circle cx="78" cy="12" r="3.5" fill="#FFFFFF" />
-                <line x1="78" y1="12" x2="78" y2="40" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="2 2" strokeOpacity="0.4" />
+                <circle cx="78" cy="12" r="3.5" fill="#35D9C5" />
+                <line x1="78" y1="12" x2="78" y2="40" stroke="#35D9C5" strokeWidth="1" strokeDasharray="2 2" strokeOpacity="0.5" />
               </svg>
               <div className="absolute bottom-2.5 right-3 text-right">
                 <span className="text-[11px] font-mono text-zinc-200 font-bold block">{formatVal(25.00)}</span>
@@ -153,8 +153,8 @@ export default function Overview({
             </div>
           </div>
 
-          {/* Card 2: Trust wallet (Cyan/Mint Gradient) */}
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 card-interactive group">
+          {/* Card 2: Trust wallet (Turquoise/Mint Equalizer Bars) */}
+          <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
                 <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-teal-400 shadow-sm">
@@ -167,36 +167,36 @@ export default function Overview({
                 <div className="text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
                   {formatVal(56.20)}
                 </div>
-                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-mono">
                   ↗ +5.99
                 </span>
-                <span className="text-[10px] text-zinc-400 ml-auto">56 second ago</span>
+                <span className="text-[10px] text-zinc-400 ml-auto font-medium">56s ago</span>
               </div>
             </div>
 
-            {/* Inner Cyan/Teal Gradient Container with Bars (from image.png) */}
+            {/* Inner Cyan/Teal Gradient Container with Bars */}
             <div className="bg-gradient-to-tr from-[#6EE7B7] via-[#2DD4BF] to-[#06B6D4] rounded-2xl p-3 text-white relative h-28 flex items-end justify-between overflow-hidden shadow-inner">
               <div className="flex items-end gap-1.5 w-full h-full pb-1">
                 {[25, 45, 20, 65, 35, 75, 45, 88, 30, 60, 92, 40, 50].map((h, i) => (
                   <div 
                     key={i} 
-                    className={`flex-1 rounded-t-sm transition-all ${i === 8 ? 'bg-white shadow-sm' : 'bg-white/40'}`} 
+                    className={`flex-1 rounded-t-sm transition-all ${i === 8 ? 'bg-white shadow-sm' : 'bg-white/45'}`} 
                     style={{ height: `${h}%` }}
                   ></div>
                 ))}
               </div>
-              <div className="absolute top-2.5 right-3 bg-[#18191E]/90 backdrop-blur-sm px-2.5 py-1 rounded-xl text-[9px] font-mono text-white flex flex-col items-center shadow-md">
+              <div className="absolute top-2.5 right-3 bg-[#16171B]/90 backdrop-blur-sm px-2.5 py-1 rounded-xl text-[9px] font-mono text-white flex flex-col items-center shadow-md border border-white/[0.1]">
                 <span className="font-bold">{formatVal(16.24)}</span>
                 <span className="text-[7px] text-zinc-400">Fri, Dec 31</span>
               </div>
             </div>
           </div>
 
-          {/* Card 3: Trust wallet (Spectrum dark style) */}
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 card-interactive group">
+          {/* Card 3: Trust wallet (Purple Spectrum Equalizer) */}
+          <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+                <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-purple-300 shadow-sm">
                   ∞
                 </div>
                 <span className="text-xs font-bold text-zinc-700">Trust wallet</span>
@@ -206,21 +206,23 @@ export default function Overview({
                 <div className="text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
                   {formatVal(82.25)}
                 </div>
-                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-mono">
                   ↗ +3.99
                 </span>
-                <span className="text-[10px] text-zinc-400 ml-auto">42 second ago</span>
+                <span className="text-[10px] text-zinc-400 ml-auto font-medium">42s ago</span>
               </div>
             </div>
 
-            {/* Inner Dark Spectrum Container (from image.png) */}
-            <div className="bg-[#18191E] rounded-2xl p-3 text-white relative h-28 flex items-center px-4 overflow-hidden shadow-inner">
+            {/* Inner Dark Spectrum Container with Purple Pill */}
+            <div className="bg-[#16171B] rounded-2xl p-3 text-white relative h-28 flex items-center px-4 overflow-hidden shadow-inner border border-white/[0.06]">
               <div className="flex items-center gap-1.5 w-full">
-                <div className="w-10 h-8 rounded-xl bg-gradient-to-r from-[#DDD6FE] to-[#C4B5FD] shadow-sm"></div>
+                <div className="w-10 h-8 rounded-xl bg-gradient-to-r from-[#DDD6FE] to-[#C4B5FD] shadow-md flex items-center justify-center text-purple-900 font-extrabold text-xs">
+                  ●
+                </div>
                 {[...Array(18)].map((_, idx) => (
                   <div 
                     key={idx} 
-                    className="w-1 rounded-full bg-white/20" 
+                    className="w-1 rounded-full bg-white/25 transition-all" 
                     style={{ height: `${12 + (idx % 4) * 4}px` }}
                   ></div>
                 ))}
@@ -232,8 +234,8 @@ export default function Overview({
             </div>
           </div>
 
-          {/* Card 4: Crypto (Royal Blue style) */}
-          <div className="bg-white rounded-3xl p-5 border border-black/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 card-interactive group">
+          {/* Card 4: Crypto (Royal Blue Trending Curve) */}
+          <div className="bg-white rounded-[26px] p-5 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-250 card-interactive group">
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
                 <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-blue-400 shadow-sm">
@@ -246,14 +248,14 @@ export default function Overview({
                 <div className="text-2xl font-extrabold text-zinc-900 font-mono tracking-tight">
                   {formatVal(120.25)}
                 </div>
-                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-mono">
                   ↗ +4.99
                 </span>
-                <span className="text-[10px] text-zinc-400 ml-auto">42 second ago</span>
+                <span className="text-[10px] text-zinc-400 ml-auto font-medium">42s ago</span>
               </div>
             </div>
 
-            {/* Inner Royal Blue Gradient Container (from image.png) */}
+            {/* Inner Royal Blue Gradient Container */}
             <div className="bg-gradient-to-tr from-[#3B82F6] via-[#2563EB] to-[#1D4ED8] rounded-2xl p-3 text-white relative h-28 flex flex-col justify-between overflow-hidden shadow-inner">
               <svg viewBox="0 0 100 45" className="w-full h-full overflow-visible">
                 <path 
@@ -278,11 +280,11 @@ export default function Overview({
         </div>
       </AnimatedContent>
 
-      {/* Row 2: 3 Major Modules (Exact Recreation from image.png) */}
+      {/* Row 2: 3 Major Modules (Depth & Personality) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Module 1: "Question of the day" Card with 3D Iris / Flower (3 cols on lg) */}
-        <div className="lg:col-span-3 bg-white rounded-3xl p-5 border border-black/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive relative overflow-hidden group">
+        <div className="lg:col-span-3 bg-white rounded-[28px] p-5 border border-black/[0.05] shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col justify-between card-interactive relative overflow-hidden group">
           
           <div>
             {/* Top Tag: ? Question of the day */}
@@ -293,26 +295,26 @@ export default function Overview({
               <span>Question of the day</span>
             </div>
 
-            {/* 3D Glass Iris / Flower Graphic (Exact from image.png) */}
+            {/* 3D Iris / Flower Graphic with Purple/Indigo AI aesthetic */}
             <div className="relative w-full h-36 flex items-center justify-center my-1">
-              <div className="absolute w-28 h-28 rounded-full bg-blue-500/25 blur-xl"></div>
+              <div className="absolute w-28 h-28 rounded-full bg-indigo-500/20 blur-xl"></div>
               
               {/* Petals */}
               <div className="relative w-32 h-32 flex items-center justify-center">
                 {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
                   <div
                     key={deg}
-                    className="absolute w-6 h-16 rounded-full bg-gradient-to-t from-blue-700 via-indigo-500 to-sky-300 opacity-80 shadow-md origin-bottom transform-gpu"
+                    className="absolute w-6 h-16 rounded-full bg-gradient-to-t from-[#6366F1] via-[#8B5CF6] to-[#38BDF8] opacity-80 shadow-md origin-bottom transform-gpu"
                     style={{ transform: `rotate(${deg}deg) translateY(-6px)` }}
                   ></div>
                 ))}
-                <div className="w-10 h-10 rounded-full bg-white shadow-xl z-10 flex items-center justify-center text-blue-600 text-sm font-bold">
+                <div className="w-10 h-10 rounded-full bg-white shadow-xl z-10 flex items-center justify-center text-indigo-600 text-sm font-bold">
                   ✦
                 </div>
               </div>
             </div>
 
-            {/* Frosted Royal-Blue Card Overlay (from image.png) */}
+            {/* Frosted Royal-Blue Card Overlay */}
             <div className="bg-gradient-to-b from-[#3B82F6]/95 to-[#2563EB] backdrop-blur-md p-4 rounded-2xl text-white shadow-lg text-center mt-2">
               <p className="text-xs sm:text-sm font-bold leading-snug">
                 How did my investments perform over the last 3 months?
@@ -329,15 +331,15 @@ export default function Overview({
           {/* Black Pill: ★ Ask AI Assistant */}
           <button 
             onClick={() => setShowAiModal(true)}
-            className="w-full bg-[#18191E] hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-full shadow-md flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 btn-interactive mt-4 group"
+            className="w-full bg-[#16171B] hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-full shadow-md flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 btn-interactive mt-4 group"
           >
             <span className="text-amber-400">★</span>
             <span>Ask AI Assistant</span>
           </button>
         </div>
 
-        {/* Module 2: "Total balance $25,000.69" Card (6 cols on lg) */}
-        <div className="lg:col-span-6 bg-white rounded-3xl p-6 border border-black/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between card-interactive">
+        {/* Module 2: "Total balance $25,000.69" Hero Card (6 cols on lg) */}
+        <div className="lg:col-span-6 bg-white rounded-[28px] p-6 border border-black/[0.05] shadow-[0_6px_28px_rgba(0,0,0,0.04)] flex flex-col justify-between card-interactive relative overflow-hidden">
           
           <div>
             {/* Top row: Total balance + Big amount + action icons */}
@@ -354,30 +356,38 @@ export default function Overview({
                 </div>
               </div>
 
-              {/* Two Icon buttons from image.png */}
+              {/* Action buttons */}
               <div className="flex items-center gap-1.5">
-                <button className="w-8 h-8 rounded-xl bg-[#F3F4F7] hover:bg-zinc-200 flex items-center justify-center text-zinc-700 transition-colors">
+                <button 
+                  onClick={() => setActiveTab('forecast')}
+                  title="View Cash Flow Outlook"
+                  className="w-8 h-8 rounded-xl bg-[#F3F4F7] hover:bg-zinc-200 flex items-center justify-center text-zinc-700 transition-colors"
+                >
                   <ArrowUpRight className="w-4 h-4" />
                 </button>
-                <button className="w-8 h-8 rounded-xl bg-[#F3F4F7] hover:bg-zinc-200 flex items-center justify-center text-zinc-700 transition-colors">
+                <button 
+                  onClick={() => setActiveTab('transactions')}
+                  title="View Spending Velocity"
+                  className="w-8 h-8 rounded-xl bg-[#F3F4F7] hover:bg-zinc-200 flex items-center justify-center text-zinc-700 transition-colors"
+                >
                   <TrendingUp className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Interactive Bar Chart with Vertical Axis Labels (from image.png) */}
+            {/* Interactive Bar Chart with Vertical Axis Labels */}
             <div className="relative w-full h-48 sm:h-56 flex items-end justify-between gap-3 sm:gap-4 pt-8 pb-3 px-2 border-b border-zinc-100">
               
-              {/* Tooltip on Active Mint Bar */}
+              {/* Dynamic Tooltip on Active Mint Bar */}
               <div 
-                className="absolute top-2 transition-all duration-200 bg-[#18191E] text-white rounded-xl px-3 py-1.5 text-xs shadow-xl z-20 pointer-events-none text-center"
+                className="absolute top-2 transition-all duration-200 bg-[#16171B] text-white rounded-xl px-3 py-1.5 text-xs shadow-xl z-20 pointer-events-none text-center border border-white/[0.08]"
                 style={{ left: `${(hoveredBarIndex / (barData.length - 1)) * 72 + 6}%` }}
               >
-                <div className="font-mono font-bold">{formatVal(activeBar.value)}</div>
+                <div className="font-mono font-bold text-teal-300">{formatVal(activeBar.value)}</div>
                 <div className="text-[10px] text-zinc-400 font-medium">{activeBar.date}</div>
               </div>
 
-              {/* Background Reference Values on Left (from image.png: $3-6, $2-7, $1-8, $0-9, $0) */}
+              {/* Background Reference Lines */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
                 <div className="border-b border-dashed border-zinc-200 w-full text-[9px] text-zinc-400 font-mono">
                   {formatVal(3600, 0)}
@@ -419,7 +429,7 @@ export default function Overview({
             </div>
           </div>
 
-          {/* Timeframe Selector Pills (from image.png: 1W, 1M, 3M, 6M, YTD, 1Y) */}
+          {/* Timeframe Selector Pills */}
           <div className="flex items-center justify-between pt-4 text-xs font-semibold">
             {['1W', '1M', '3M', '6M', 'YTD', '1Y'].map((t) => (
               <button
@@ -427,7 +437,7 @@ export default function Overview({
                 onClick={() => setActiveTimeframe(t)}
                 className={`px-3 py-1 rounded-full transition-all ${
                   activeTimeframe === t
-                    ? 'bg-[#18191E] text-white font-bold shadow-sm'
+                    ? 'bg-[#16171B] text-white font-bold shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-800'
                 }`}
               >
@@ -438,8 +448,8 @@ export default function Overview({
 
         </div>
 
-        {/* Module 3: "Holding" Card (Dark #18191E Container exact from image.png - 3 cols on lg) */}
-        <div className="lg:col-span-3 bg-[#18191E] text-white rounded-3xl p-5 shadow-xl flex flex-col justify-between card-interactive">
+        {/* Module 3: "Holding" Card (Deep Charcoal #16171B with High Contrast - 3 cols on lg) */}
+        <div className="lg:col-span-3 bg-[#16171B] text-white rounded-[28px] p-5 shadow-xl flex flex-col justify-between card-interactive border border-white/[0.08]">
           
           <div>
             {/* Top row: Holding + See all holding > */}
@@ -447,15 +457,15 @@ export default function Overview({
               <h2 className="text-sm font-bold text-white tracking-tight">Holding</h2>
               <button 
                 onClick={() => setActiveTab('transactions')}
-                className="text-[11px] text-zinc-400 hover:text-white font-medium flex items-center gap-0.5 transition-colors"
+                className="text-[11px] text-zinc-400 hover:text-teal-400 font-medium flex items-center gap-0.5 transition-colors"
               >
                 <span>See all holding</span>
                 <ChevronRight className="w-3 h-3" />
               </button>
             </div>
 
-            {/* Total Value Section 1 */}
-            <div className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2">Total Value</div>
+            {/* Asset Allocation Section */}
+            <div className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2">Portfolio Assets</div>
             
             <div className="space-y-2 mb-4">
               {/* Row 1: Near protocol */}
@@ -505,9 +515,9 @@ export default function Overview({
               </div>
             </div>
 
-            {/* Total Value Section 2 with Mini Sparkline Equalizers */}
+            {/* Real-time Performance Section (distinct from Asset Allocation) */}
             <div className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 pt-2 border-t border-white/[0.08]">
-              Total Value
+              Real-time Performance
             </div>
 
             <div className="space-y-2">
@@ -529,18 +539,13 @@ export default function Overview({
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2.5">
-                  {/* Mini turquoise equalizer bars (from image.png) */}
-                  <div className="flex items-end gap-0.5 h-4">
-                    <span className="w-0.5 h-2 bg-teal-400 rounded-full animate-pulse"></span>
-                    <span className="w-0.5 h-4 bg-teal-400 rounded-full"></span>
-                    <span className="w-0.5 h-3 bg-teal-400 rounded-full"></span>
-                    <span className="w-0.5 h-1.5 bg-teal-400 rounded-full"></span>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-full">
-                    6.5%
+                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-emerald-400">
+                  <span className="flex items-end gap-0.5 h-3">
+                    <span className="w-0.5 h-2 bg-emerald-400 rounded-full"></span>
+                    <span className="w-0.5 h-3 bg-emerald-400 rounded-full"></span>
+                    <span className="w-0.5 h-1.5 bg-emerald-400 rounded-full"></span>
                   </span>
+                  <span>6.5%</span>
                 </div>
               </div>
 
@@ -562,26 +567,25 @@ export default function Overview({
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2.5">
-                  <div className="flex items-end gap-0.5 h-4">
-                    <span className="w-0.5 h-1.5 bg-teal-400 rounded-full"></span>
-                    <span className="w-0.5 h-3 bg-teal-400 rounded-full"></span>
-                    <span className="w-0.5 h-4 bg-teal-400 rounded-full animate-pulse"></span>
-                    <span className="w-0.5 h-2 bg-teal-400 rounded-full"></span>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-full">
-                    6.5%
+                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-emerald-400">
+                  <span className="flex items-end gap-0.5 h-3">
+                    <span className="w-0.5 h-2 bg-emerald-400 rounded-full"></span>
+                    <span className="w-0.5 h-3 bg-emerald-400 rounded-full"></span>
+                    <span className="w-0.5 h-1.5 bg-emerald-400 rounded-full"></span>
                   </span>
+                  <span>6.5%</span>
                 </div>
               </div>
             </div>
-
           </div>
 
-          <div className="pt-3 border-t border-white/[0.08] mt-3 flex items-center justify-between text-[11px] text-zinc-400">
+          {/* Synchronized Feed Indicator */}
+          <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-zinc-400">
             <span>Synchronized Holding Feed</span>
-            <span className="font-mono text-teal-400 font-semibold">Active</span>
+            <span className="flex items-center gap-1.5 text-[#35D9C5] font-semibold text-[10px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#35D9C5] animate-pulse"></span>
+              <span>Active</span>
+            </span>
           </div>
 
         </div>
